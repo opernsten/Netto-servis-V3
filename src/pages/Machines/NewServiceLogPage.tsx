@@ -6,7 +6,7 @@ import { ArrowLeft, Wrench, Plus, Trash2, Upload } from 'lucide-react';
 import { createServiceLog, uploadAttachment } from '../../services/serviceLogService';
 
 // TADY MI PAK MŮŽEŠ NAPSAT SVŮJ SEZNAM A JÁ TI HO TAM DOPLNÍM:
-const TECHNICIANS_LIST = ['O.ERNSTEN', 'Jan Novák', 'Petr Dvořák', 'Lukáš Svoboda'];
+const TECHNICIANS_LIST = ['O.ERNSTEN', 'D.MOLDOVAN', 'P.KREJČÍ', 'D.SVOBODA'];
 
 const WORK_TYPES = [
   'Profylaxe / Údržba',

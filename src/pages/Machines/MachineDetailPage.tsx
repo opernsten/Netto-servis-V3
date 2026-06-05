@@ -177,6 +177,14 @@ export function MachineDetailPage() {
             </div>
           </div>
         </div>
+        
+        {/* POZNÁMKY KE STROJI */}
+        {machine.notes && (
+          <div className="p-6 border-t border-gray-200 bg-yellow-50/50">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Doplňující poznámky</h3>
+            <p className="text-gray-700 whitespace-pre-wrap text-sm">{machine.notes}</p>
+          </div>
+        )}
       </div>
 
       {/* --- NOVÁ SEKCE: HLÍDACÍ PES (Plánovaná údržba) --- */}

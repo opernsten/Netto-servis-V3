@@ -18,6 +18,7 @@ import { EditMachinePage } from './pages/Machines/EditMachinePage';
 import { MachineDetailPage } from './pages/Machines/MachineDetailPage';
 import { ServiceHistoryPage } from './pages/Machines/ServiceHistoryPage';
 import { NewServiceLogPage } from './pages/Machines/NewServiceLogPage';
+import { SettingsPage } from './pages/Settings/settingsPage';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -62,7 +63,7 @@ export default function App() {
           <Route path="/stroje/novy" element={<NewMachinePage />} />
           <Route path="/stroje/:id/servis" element={<ServiceHistoryPage />} />
           <Route path="/stroje/:id/servis/novy" element={<NewServiceLogPage />} />
-          <Route path="/nastaveni" element={<div className="p-8">Nastavení profilu...</div>} />
+          <Route path="/nastaveni" element={<SettingsPage />} />
         </Route>
         
         {/* Záchytná síť: Když zadáš nesmyslnou URL, hodí tě to na Dashboard */}

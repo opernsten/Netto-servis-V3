@@ -79,14 +79,7 @@ export function CustomerDetailPage() {
           {/* Kontakt */}
           <div className="space-y-4 border-l-0 md:border-l border-gray-100 md:pl-8">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Kontaktní údaje</h3>
-            <div className="flex items-center gap-3 text-gray-800 font-medium">
-              <Mail className="text-gray-400" size={18} />
-              {customer.email || 'E-mail nezadán'}
-            </div>
-            <div className="flex items-center gap-3 text-gray-800 font-medium">
-              <Phone className="text-gray-400" size={18} />
-              {customer.phone || 'Telefon nezadán'}
-            </div>
+
             {/* Kouč zákazníka */}
             {customer.coach && (
               <div className="flex items-center gap-3 text-blue-800 font-bold bg-blue-50/50 p-2 rounded-lg border border-blue-100/50">
@@ -99,6 +92,16 @@ export function CustomerDetailPage() {
             <div className="flex items-center gap-3 text-gray-800 font-bold">
               <User className="text-gray-400" size={18} />
               {customer.contact_person || 'Osoba nezadána'}
+            </div>
+            {/* email */}
+            <div className="flex items-center gap-3 text-gray-800 font-medium">
+              <Mail className="text-gray-400" size={18} />
+              {customer.email || 'E-mail nezadán'}
+            </div>
+            {/* Telefon */}
+            <div className="flex items-center gap-3 text-gray-800 font-medium">
+              <Phone className="text-gray-400" size={18} />
+              {customer.phone || 'Telefon nezadán'}
             </div>
           </div>
 
