@@ -9,7 +9,7 @@ export function EditCustomerPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <div className="mb-6">
-        <Link to="/zakaznici" className="text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-2 font-semibold">
+        <Link to={`/zakaznici/detail/${id}`} className="text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-2 font-semibold">
           <ArrowLeft size={20} />
           Zpět na seznam zákazníků
         </Link>

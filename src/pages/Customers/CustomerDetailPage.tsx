@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, CheckCircle, AlertTriangle, Edit, Monitor, ShieldCheck, Network, User, Contact } from 'lucide-react';
 import { getCustomerDetail } from '../../services/customerService';
 
 export function CustomerDetailPage() {
@@ -25,11 +25,22 @@ export function CustomerDetailPage() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       
-      {/* Tlačítko zpět */}
-      <div className="mb-6">
+      {/* Tlačítka horní navigace */}
+      <div className="flex items-center justify-between mb-6">
         <Link to="/zakaznici" className="text-gray-500 hover:text-[#0f2c59] transition-colors flex items-center gap-2 font-semibold">
           <ArrowLeft size={20} />
-          Zpět na seznam zákazníků
+          <span className="hidden sm:inline">Zpět na seznam zákazníků</span>
+          <span className="sm:hidden">Zpět</span>
+        </Link>
+        
+        {/* NOVÉ TLAČÍTKO PRO ÚPRAVU */}
+        <Link 
+          to={`/zakaznici/upravit/${id}`} 
+          className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 text-sm shadow-sm shrink-0"
+        >
+          <Edit size={16} />
+          <span className="hidden sm:inline">Upravit údaje</span>
+          <span className="sm:hidden">Upravit</span>
         </Link>
       </div>
 
@@ -52,7 +63,8 @@ export function CustomerDetailPage() {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+        {/* ZMĚNA: Grid změněn na 3 sloupce (md:grid-cols-3) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
           {/* Adresa */}
           <div className="flex items-start gap-3">
             <MapPin className="text-gray-400 mt-1" size={20} />
@@ -65,7 +77,7 @@ export function CustomerDetailPage() {
           </div>
           
           {/* Kontakt */}
-          <div className="space-y-4">
+          <div className="space-y-4 border-l-0 md:border-l border-gray-100 md:pl-8">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Kontaktní údaje</h3>
             <div className="flex items-center gap-3 text-gray-800 font-medium">
               <Mail className="text-gray-400" size={18} />
@@ -74,6 +86,38 @@ export function CustomerDetailPage() {
             <div className="flex items-center gap-3 text-gray-800 font-medium">
               <Phone className="text-gray-400" size={18} />
               {customer.phone || 'Telefon nezadán'}
+            </div>
+            {/* Kouč zákazníka */}
+            {customer.coach && (
+              <div className="flex items-center gap-3 text-blue-800 font-bold bg-blue-50/50 p-2 rounded-lg border border-blue-100/50">
+                <Contact className="text-blue-500" size={18} />
+                Kouč: {customer.coach}
+              </div>
+            )}
+
+            {/* Kontaktní osoba */}
+            <div className="flex items-center gap-3 text-gray-800 font-bold">
+              <User className="text-gray-400" size={18} />
+              {customer.contact_person || 'Osoba nezadána'}
+            </div>
+          </div>
+
+          {/* NOVÉ: IT a Konektivita */}
+          <div className="space-y-4 border-l-0 md:border-l border-gray-100 md:pl-8">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2">
+              <Network size={16} /> Konektivita & SW
+            </h3>
+            <div className={`p-2 rounded-lg border flex items-center gap-3 ${customer.has_comscale ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
+              <Monitor size={16} className={customer.has_comscale ? 'text-blue-600' : 'text-gray-400'} />
+              <span className="font-bold text-sm">
+                {customer.has_comscale ? 'Využívá ComScale' : 'Bez ComScale'}
+              </span>
+            </div>
+            <div className={`p-2 rounded-lg border flex items-center gap-3 ${customer.has_vpn ? 'bg-green-50 border-green-200 text-green-800' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
+              <ShieldCheck size={16} className={customer.has_vpn ? 'text-green-600' : 'text-gray-400'} />
+              <span className="font-bold text-sm">
+                {customer.has_vpn ? 'VPN přístup aktivní' : 'Bez VPN'}
+              </span>
             </div>
           </div>
         </div>

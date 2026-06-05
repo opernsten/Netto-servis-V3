@@ -9,7 +9,12 @@ export async function createCustomer(
   country: string,
   email: string,
   phone: string,
-  hasServiceContract: boolean
+  hasServiceContract: boolean,
+  hasComscale: boolean,
+  hasVpn: boolean,
+  constactPerson: string,
+  coach: string
+
 ) {
   const { data, error } = await supabase
     .from('customers')
@@ -23,7 +28,11 @@ export async function createCustomer(
         country: country,
         email: email,
         phone: phone,
-        has_service_contract: hasServiceContract
+        has_service_contract: hasServiceContract,
+        has_comscale: hasComscale,
+        has_vpn: hasVpn,
+        contact_person: constactPerson,
+        coach: coach
       }
     ])
     .select();
@@ -73,7 +82,11 @@ export async function updateCustomer(
   country: string,
   email: string,
   phone: string,
-  hasServiceContract: boolean
+  hasServiceContract: boolean,
+  hasComscale: boolean,
+  hasVpn: boolean,
+  constactPerson: string,
+  coach: string
 ) {
   const { data, error } = await supabase
     .from('customers')
@@ -86,7 +99,11 @@ export async function updateCustomer(
       country: country,
       email: email,
       phone: phone,
-      has_service_contract: hasServiceContract
+      has_service_contract: hasServiceContract,
+      has_comscale: hasComscale,
+      has_vpn: hasVpn,
+      contact_person: constactPerson,
+      coach: coach
     })
     .eq('id', id)
     .select();
