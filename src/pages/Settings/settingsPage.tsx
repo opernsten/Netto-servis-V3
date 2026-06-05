@@ -136,6 +136,7 @@ export function SettingsPage() {
               </div>
             </div>
 
+            {/* VERZE APLIKACE */}   
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <div className="flex items-center gap-3 text-gray-600">
                 <HardDrive size={20} />

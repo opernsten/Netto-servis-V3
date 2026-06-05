@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, CheckCircle, AlertTriangle, Edit, Monitor, ShieldCheck, Network, User, Contact } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact } from 'lucide-react';
 import { getCustomerDetail } from '../../services/customerService';
 import { getStatusConfig } from '../../utils/statusConfig';
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, CheckCircle, AlertTriangle, Calendar, Plus, CalendarClock, X, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, AlertTriangle, Calendar, Plus, CalendarClock, X, Trash2, Edit } from 'lucide-react';
 import { getMachineDetail, updateMachineMaintenance } from '../../services/machineService';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
