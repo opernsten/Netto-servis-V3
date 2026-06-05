@@ -4,6 +4,8 @@ import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, CheckCircle, Al
 import { getMachineDetail, updateMachineMaintenance } from '../../services/machineService';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
+import { getStatusConfig } from '../../utils/statusConfig';
+
 
 export function MachineDetailPage() {
   const { id } = useParams();
@@ -92,11 +94,9 @@ export function MachineDetailPage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-extrabold tracking-tight">{machine.model}</h1>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${
-                  machine.status === 'OK' ? 'bg-green-500/20 text-green-300 border-green-400/30' : 'bg-red-500/20 text-red-300 border-red-400/30'
-                }`}>
-                  {machine.status === 'OK' ? <CheckCircle size={14} className="mr-1" /> : <AlertTriangle size={14} className="mr-1" />}
-                  Stav: {machine.status}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${getStatusConfig(machine?.status).bg} ${getStatusConfig(machine?.status).text} ${getStatusConfig(machine?.status).border}`}>
+                  <div className={`w-2 h-2 rounded-full mr-2 shadow-sm ${getStatusConfig(machine?.status).dot}`}></div>
+                  {machine?.status || 'Neznámý stav'}
                 </span>
               </div>
               <p className="text-blue-200 font-medium text-lg tracking-wide">S/N: {machine.serial_number}</p>
@@ -177,7 +177,7 @@ export function MachineDetailPage() {
             </div>
           </div>
         </div>
-        
+
         {/* POZNÁMKY KE STROJI */}
         {machine.notes && (
           <div className="p-6 border-t border-gray-200 bg-yellow-50/50">

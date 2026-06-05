@@ -4,6 +4,7 @@ import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { getCustomers } from '../../services/machineService';
 import { createMachine, getMachineById, updateMachine } from '../../services/machineService';
+import { MACHINE_STATUSES } from '../../utils/statusConfig';
 
 export function MachineForm({ machineId }: { machineId?: string }) {
   const navigate = useNavigate(); // PŘIDÁNO: inicializace navigace
@@ -118,9 +119,9 @@ export function MachineForm({ machineId }: { machineId?: string }) {
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value="OK">OK (V provozu)</option>
-              <option value="Nutná údržba">Nutná údržba</option>
-              <option value="Porucha">Porucha (Mimo provoz)</option>
+              {MACHINE_STATUSES.map((s) => (
+                <option key={s.id} value={s.id}>{s.label}</option>
+              ))}
             </select>
           </div>
         </div>

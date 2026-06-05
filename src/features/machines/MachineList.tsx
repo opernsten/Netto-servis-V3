@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getMachinesWithCustomers } from '../../services/machineService';
-import { Server, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Server } from 'lucide-react';
+import { getStatusConfig } from '../../utils/statusConfig';
 
 export function MachineList() {
   const [machines, setMachines] = useState<any[]>([]);
@@ -78,13 +79,9 @@ export function MachineList() {
                 
                 {/* Sloupec: Stav stroje */}
                 <td className="p-4">
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                    machine.status === 'OK' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {machine.status === 'OK' ? <CheckCircle size={12} className="mr-1" /> : <AlertTriangle size={12} className="mr-1" />}
-                    {machine.status}
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusConfig(machine.status).bg} ${getStatusConfig(machine.status).text} ${getStatusConfig(machine.status).border}`}>
+                    <div className={`w-2 h-2 rounded-full mr-2 ${getStatusConfig(machine.status).dot}`}></div>
+                    {machine.status || 'Neznámý stav'}
                   </span>
                 </td>
                 

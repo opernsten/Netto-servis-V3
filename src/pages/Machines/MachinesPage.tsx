@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Server, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft, CheckCircle, AlertTriangle, Filter } from 'lucide-react';
 import { getMachinesWithCustomers, deleteMachine } from '../../services/machineService';
+import { getStatusConfig } from '../../utils/statusConfig';
 
 export function MachinesPage() {
   const [machines, setMachines] = useState<any[]>([]);
@@ -164,11 +165,9 @@ export function MachinesPage() {
 
                   <div className="flex items-center gap-4">
                     {/* Zobrazení stavu */}
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                      machine.status === 'OK' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {machine.status === 'OK' ? <CheckCircle size={14} className="mr-1" /> : <AlertTriangle size={14} className="mr-1" />}
-                      {machine.status}
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${getStatusConfig(machine?.status).bg} ${getStatusConfig(machine?.status).text} ${getStatusConfig(machine?.status).border}`}>
+                      <div className={`w-2 h-2 rounded-full mr-2 shadow-sm ${getStatusConfig(machine?.status).dot}`}></div>
+                      {machine?.status || 'Neznámý stav'}
                     </span>
 
                     {/* Akční tlačítka */}

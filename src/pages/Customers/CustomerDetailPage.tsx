@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, CheckCircle, AlertTriangle, Edit, Monitor, ShieldCheck, Network, User, Contact } from 'lucide-react';
 import { getCustomerDetail } from '../../services/customerService';
+import { getStatusConfig } from '../../utils/statusConfig';
 
 export function CustomerDetailPage() {
   const { id } = useParams();
@@ -141,14 +142,10 @@ export function CustomerDetailPage() {
                   <div className="font-bold text-gray-800 text-lg">{machine.model}</div>
                   <div className="text-sm text-gray-500">S/N: {machine.serial_number}</div>
                 </div>
-                <div>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
-                    machine.status === 'OK' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    {machine.status === 'OK' ? <CheckCircle size={14} className="mr-1" /> : <AlertTriangle size={14} className="mr-1" />}
-                    {machine.status}
-                  </span>
-                </div>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusConfig(machine.status).bg} ${getStatusConfig(machine.status).text} ${getStatusConfig(machine.status).border}`}>
+                  <div className={`w-2 h-2 rounded-full mr-2 ${getStatusConfig(machine.status).dot}`}></div>
+                  {machine.status || 'Neznámý stav'}
+                </span>
               </div>
             ))}
           </div>
