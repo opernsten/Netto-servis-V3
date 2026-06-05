@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Server, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft, CheckCircle, AlertTriangle, Filter } from 'lucide-react';
+import { Server, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft, Filter } from 'lucide-react';
 import { getMachinesWithCustomers, deleteMachine } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
 
