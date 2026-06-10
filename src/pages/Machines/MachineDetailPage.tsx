@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus, Edit } from 'lucide-react';
+import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus, Edit, CalendarClock, AlertTriangle, Truck} from 'lucide-react';
 import { getMachineDetail } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
 
@@ -24,6 +24,10 @@ export function MachineDetailPage() {
 
   if (loading) return <div className="p-8 text-gray-500 font-medium">Načítám technickou kartu...</div>;
   if (!machine) return <div className="p-8 text-red-500 font-medium">Zařízení nenalezeno.</div>;
+  
+  const plannedVisits = machine.planned_visit_machines
+    ?.map((link: any) => link.visit)
+    .sort((a: any, b: any) => new Date(a.visit_date).getTime() - new Date(b.visit_date).getTime()) || [];
 
   return (
     <div className="p-8 max-w-6xl mx-auto relative">
@@ -147,6 +151,45 @@ export function MachineDetailPage() {
             <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Doplňující poznámky</h3>
             <p className="text-gray-700 whitespace-pre-wrap text-sm">{machine.notes}</p>
           </div>
+        )}
+      </div>
+
+      {/* NOVÉ ZOBRAZENÍ PLÁNOVANÝCH VÝJEZDŮ (Čte z nové tabulky) */}
+      <div className="mb-8">
+        <h2 className="text-xl font-extrabold text-[#0f2c59] mb-4 flex items-center gap-2">
+          <Truck className="text-orange-500" /> Plánované výjezdy
+        </h2>
+        
+        {plannedVisits.length > 0 ? (
+          <div className="space-y-3">
+            {plannedVisits.map((visit: any) => (
+              <div key={visit.id} className="bg-orange-50 border-2 border-orange-400 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm relative overflow-hidden">
+                <div className="absolute left-0 top-0 w-2 h-full bg-orange-500"></div>
+                <div className="flex items-center gap-5 ml-2">
+                  <div className="p-3 bg-white text-orange-500 rounded-full shadow-sm"><CalendarClock size={32} /></div>
+                  <div>
+                    <p className="text-orange-800 font-extrabold text-xl">Výjezd: {new Date(visit.visit_date).toLocaleDateString('cs-CZ')}</p>
+                    {visit.note && (
+                      <p className="text-orange-700 mt-1 font-medium text-sm flex items-center gap-2">
+                        <AlertTriangle size={14} /> {visit.note}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {/* Přesměrování na kartu zákazníka, kde se výjezdy spravují */}
+                <Link to={`/zakaznici/detail/${machine.customer_id}`} className="px-4 py-2 bg-white text-orange-600 font-bold text-sm rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors">
+                  Upravit u zákazníka
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Link to={`/zakaznici/detail/${machine.customer_id}`} className="block w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-blue-50 hover:border-blue-400 transition-all font-bold text-lg text-gray-500 group">
+            <div className="flex items-center justify-center gap-3">
+              <CalendarClock size={24} className="group-hover:scale-110 transition-transform" />
+              Tento stroj nemá naplánovaný žádný výjezd. Naplánovat u zákazníka.
+            </div>
+          </Link>
         )}
       </div>
 

@@ -129,15 +129,22 @@ export async function deleteMachine(id: string) {
   return { error };
 }
 
-// Funkce pro načtení kompletního detailu stroje včetně jména zákazníka
 export async function getMachineDetail(id: string) {
   const { data, error } = await supabase
     .from('machines')
     .select(`
       *,
       customers (
+        id,
         name,
         city
+      ),
+      planned_visit_machines (
+        visit:planned_visits (
+          id,
+          visit_date,
+          note
+        )
       )
     `)
     .eq('id', id)
