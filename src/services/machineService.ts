@@ -145,17 +145,3 @@ export async function getMachineDetail(id: string) {
 
   return { data, error };
 }
-
-// Funkce pro rychlé nastavení nebo zrušení plánované údržby
-export async function updateMachineMaintenance(id: string, date: string | null, note: string | null) {
-  const { data, error } = await supabase
-    .from('machines')
-    .update({ 
-      next_maintenance_date: date,
-      next_maintenance_note: note
-    })
-    .eq('id', id)
-    .select();
-
-  return { data, error };
-}

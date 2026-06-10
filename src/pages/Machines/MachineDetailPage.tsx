@@ -1,22 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, AlertTriangle, Calendar, Plus, CalendarClock, X, Trash2, Edit } from 'lucide-react';
-import { getMachineDetail, updateMachineMaintenance } from '../../services/machineService';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
+import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus, Edit } from 'lucide-react';
+import { getMachineDetail } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
-
 
 export function MachineDetailPage() {
   const { id } = useParams();
   const [machine, setMachine] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // Stavy pro vyskakovací okno (Modal)
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [maintenanceDate, setMaintenanceDate] = useState('');
-  const [maintenanceNote, setMaintenanceNote] = useState('');
-  const [modalStatus, setModalStatus] = useState<string | null>(null);
 
   async function loadData() {
     if (id) {
@@ -30,34 +21,6 @@ export function MachineDetailPage() {
   useEffect(() => {
     loadData();
   }, [id]);
-
-  // Uložení plánu do databáze
-  const handleSaveMaintenance = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    
-    setModalStatus('Ukládám plán...');
-    const { error } = await updateMachineMaintenance(id, maintenanceDate, maintenanceNote);
-    
-    if (error) {
-      setModalStatus('Chyba: ' + error.message);
-    } else {
-      setIsModalOpen(false);
-      setModalStatus(null);
-      setMaintenanceDate('');
-      setMaintenanceNote('');
-      loadData(); // Znovu načte data, aby se hned ukázal oranžový box
-    }
-  };
-
-  // Zrušení plánu
-  const handleClearMaintenance = async () => {
-    if (!id) return;
-    if (window.confirm('Opravdu chcete zrušit plánovanou údržbu?')) {
-      await updateMachineMaintenance(id, null, null);
-      loadData();
-    }
-  };
 
   if (loading) return <div className="p-8 text-gray-500 font-medium">Načítám technickou kartu...</div>;
   if (!machine) return <div className="p-8 text-red-500 font-medium">Zařízení nenalezeno.</div>;
@@ -187,54 +150,6 @@ export function MachineDetailPage() {
         )}
       </div>
 
-      {/* --- NOVÁ SEKCE: HLÍDACÍ PES (Plánovaná údržba) --- */}
-      <div className="mb-8">
-        {machine.next_maintenance_date ? (
-          <div className="bg-orange-50 border-2 border-orange-400 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm relative overflow-hidden">
-            <div className="absolute left-0 top-0 w-2 h-full bg-orange-500"></div>
-            <div className="flex items-center gap-5 ml-2">
-              <div className="p-3 bg-white text-orange-500 rounded-full shadow-sm">
-                <CalendarClock size={32} />
-              </div>
-              <div>
-                <p className="text-orange-800 font-extrabold text-xl">
-                  Plánovaný výjezd: {new Date(machine.next_maintenance_date).toLocaleDateString('cs-CZ')}
-                </p>
-                {machine.next_maintenance_note && (
-                  <p className="text-orange-700 mt-1 font-medium text-sm flex items-center gap-2">
-                    <AlertTriangle size={14} /> {machine.next_maintenance_note}
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex gap-2 w-full md:w-auto">
-              <button 
-                onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-white text-orange-600 font-bold text-sm rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors flex-1 md:flex-none"
-              >
-                Změnit
-              </button>
-              <button 
-                onClick={handleClearMaintenance}
-                className="px-4 py-2 bg-white text-red-600 font-bold text-sm rounded-lg border border-red-200 hover:bg-red-50 transition-colors flex-1 md:flex-none flex items-center justify-center gap-1"
-                title="Zrušit plán"
-              >
-                <Trash2 size={16} /> Zrušit
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 flex items-center justify-center gap-3 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700 text-gray-500 transition-all font-bold text-lg group"
-          >
-            <CalendarClock size={24} className="group-hover:scale-110 transition-transform" />
-            Naplánovat další servis / údržbu
-          </button>
-        )}
-      </div>
-
       {/* --- AKČNÍ TLAČÍTKA SERVISU --- */}
       <h2 className="text-xl font-extrabold text-[#0f2c59] mb-4">Servis a údržba</h2>
       <div className="flex flex-col sm:flex-row gap-6">
@@ -253,54 +168,6 @@ export function MachineDetailPage() {
           <span className="font-bold text-xl">Přidat nový záznam</span>
         </Link>
       </div>
-
-      {/* --- MODAL PRO PLÁNOVÁNÍ (Vyskakovací okno) --- */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
-            <div className="bg-orange-500 p-4 flex items-center justify-between text-white">
-              <h3 className="font-bold flex items-center gap-2">
-                <CalendarClock size={20} />
-                Plánovač výjezdu
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="hover:bg-orange-600 p-1 rounded-lg transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleSaveMaintenance} className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Datum údržby *</label>
-                <Input type="date" required value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} />
-              </div>
-              
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Poznámka / Co se bude dělat</label>
-                <textarea
-                  placeholder="např. Kalibrace, výměna T1 senzoru..."
-                  value={maintenanceNote}
-                  onChange={(e) => setMaintenanceNote(e.target.value)}
-                  rows={3}
-                  className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block p-3.5 outline-none transition-all resize-none"
-                />
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">Uložit termín</Button>
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition-colors"
-                >
-                  Zrušit
-                </button>
-              </div>
-
-              {modalStatus && <p className="text-sm font-semibold text-red-600 text-center">{modalStatus}</p>}
-            </form>
-          </div>
-        </div>
-      )}
 
     </div>
   );

@@ -121,9 +121,7 @@ export async function getCustomerDetail(id: string) {
         id,
         model,
         serial_number,
-        status,
-        next_maintenance_date,
-        next_maintenance_note
+        status
       )
     `)
     .eq('id', id)
