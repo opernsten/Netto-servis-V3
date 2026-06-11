@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact, Truck, CalendarClock, AlertTriangle, Plus, Trash2, X, CheckSquare } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact, Truck, CalendarClock, AlertTriangle, Plus, Trash2, X, CheckSquare, Compass } from 'lucide-react';
 import { getCustomerDetail } from '../../services/customerService';
 import { createPlannedVisit, getPlannedVisitsForCustomer, deletePlannedVisit } from '../../services/visitService';
 import { getStatusConfig } from '../../utils/statusConfig';
+import { getGoogleMapsRouteUrl } from '../../utils/mapUtils'; // <-- TADY IMPORTUJEME NAŠI NOVOU FUNKCI
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 
@@ -13,33 +14,19 @@ export function CustomerDetailPage() {
   const [plannedVisits, setPlannedVisits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Stavy pro Modal (Vyskakovací okno plánovače)
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [visitDate, setVisitDate] = useState('');
   const [visitNote, setVisitNote] = useState('');
   const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>([]);
   const [modalStatus, setModalStatus] = useState<string | null>(null);
 
-  // Funkce pro stažení všech dat (Zákazník + Výjezdy)
-  // Pojistka, která okamžitě nahlásí, co přesně se databázi nelíbí
   async function loadData() {
     if (id) {
       setLoading(true);
-      
-      // 1. Načtení zákazníka
-      const { data: custData, error: custError } = await getCustomerDetail(id);
-      if (custError) {
-        console.error("Chyba zákazníka:", custError);
-        alert("Chyba při načítání zákazníka: " + custError.message);
-      }
+      const { data: custData } = await getCustomerDetail(id);
       setCustomer(custData);
       
-      // 2. Načtení výjezdů
-      const { data: visitsData, error: visitsError } = await getPlannedVisitsForCustomer(id);
-      if (visitsError) {
-        console.error("Chyba výjezdů:", visitsError);
-        alert("Chyba při načítání nového plánovače: " + visitsError.message);
-      }
+      const { data: visitsData } = await getPlannedVisitsForCustomer(id);
       if (visitsData) setPlannedVisits(visitsData);
       
       setLoading(false);
@@ -50,7 +37,6 @@ export function CustomerDetailPage() {
     loadData();
   }, [id]);
 
-  // Přepínání zaškrtávátka u stroje v Modalu
   const toggleMachineSelection = (machineId: string) => {
     if (selectedMachineIds.includes(machineId)) {
       setSelectedMachineIds(selectedMachineIds.filter(id => id !== machineId));
@@ -59,7 +45,6 @@ export function CustomerDetailPage() {
     }
   };
 
-  // Uložení nového výjezdu
   const handleSaveVisit = async (e: FormEvent) => {
     e.preventDefault();
     if (!id) return;
@@ -74,7 +59,6 @@ export function CustomerDetailPage() {
     if (error) {
       setModalStatus('Chyba: ' + error.message);
     } else {
-      // Úspěch - zavřít okno, vyčistit formulář a znovu načíst data
       setIsVisitModalOpen(false);
       setVisitDate('');
       setVisitNote('');
@@ -84,11 +68,10 @@ export function CustomerDetailPage() {
     }
   };
 
-  // Smazání výjezdu
   const handleDeleteVisit = async (visitId: string) => {
     if (window.confirm('Opravdu chcete tento výjezd kompletně zrušit?')) {
       await deletePlannedVisit(visitId);
-      loadData(); // Obnovení seznamu
+      loadData();
     }
   };
 
@@ -98,24 +81,20 @@ export function CustomerDetailPage() {
   return (
     <div className="p-8 max-w-6xl mx-auto relative">
       
-      {/* Tlačítka horní navigace */}
       <div className="flex items-center justify-between mb-6">
         <Link to="/zakaznici" className="text-gray-500 hover:text-[#0f2c59] transition-colors flex items-center gap-2 font-semibold">
           <ArrowLeft size={20} />
           <span className="hidden sm:inline">Zpět na seznam zákazníků</span>
-          <span className="sm:hidden">Zpět</span>
         </Link>
         <Link 
           to={`/zakaznici/upravit/${id}`} 
           className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-blue-600 px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 text-sm shadow-sm shrink-0"
         >
           <Edit size={16} />
-          <span className="hidden sm:inline">Upravit údaje</span>
-          <span className="sm:hidden">Upravit</span>
+          <span>Upravit údaje</span>
         </Link>
       </div>
 
-      {/* HLAVNÍ KARTA ZÁKAZNÍKA */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
         <div className="bg-[#0f2c59] p-8 text-white flex items-start gap-6">
           <div className="p-4 bg-white/10 rounded-xl backdrop-blur-sm">
@@ -133,17 +112,30 @@ export function CustomerDetailPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
-          {/* Adresa */}
-          <div className="flex items-start gap-3">
-            <MapPin className="text-gray-400 mt-1" size={20} />
-            <div>
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Sídlo / Provozovna</h3>
-              <p className="text-gray-800 font-medium">{customer.street || 'Ulice nezadána'}</p>
-              <p className="text-gray-800 font-medium">{customer.zip} {customer.city}</p>
-              <p className="text-gray-500 text-sm">{customer.country}</p>
+          {/* Adresa + TLAČÍTKO PRO NAVIGACI */}
+          <div className="flex items-start gap-3 flex-col justify-between h-full">
+            <div className="flex items-start gap-3">
+              <MapPin className="text-gray-400 mt-1 shrink-0" size={20} />
+              <div>
+                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Sídlo / Provozovna</h3>
+                <p className="text-gray-800 font-bold text-base">{customer.street || 'Ulice nezadána'}</p>
+                <p className="text-gray-800 font-semibold">{customer.zip} {customer.city}</p>
+                <p className="text-gray-500 text-sm">{customer.country}</p>
+              </div>
             </div>
+            
+            {/* VOLÁNÍ TÉ NAŠÍ NOVÉ FUNKCE */}
+            <a 
+              href={getGoogleMapsRouteUrl(customer)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs p-3 rounded-xl border border-blue-200 flex items-center justify-center gap-2 transition-all shadow-sm group"
+            >
+              <Compass size={16} className="group-hover:rotate-45 transition-transform text-blue-600 animate-pulse" />
+              Spustit navigaci z firmy
+            </a>
           </div>
-          {/* Kontakt */}
+
           <div className="space-y-4 border-l-0 md:border-l border-gray-100 md:pl-8">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Kontaktní údaje</h3>
             {customer.coach && (
@@ -155,7 +147,7 @@ export function CustomerDetailPage() {
             <div className="flex items-center gap-3 text-gray-800 font-medium"><Mail className="text-gray-400" size={18} /> {customer.email || 'E-mail nezadán'}</div>
             <div className="flex items-center gap-3 text-gray-800 font-medium"><Phone className="text-gray-400" size={18} /> {customer.phone || 'Telefon nezadán'}</div>
           </div>
-          {/* IT */}
+
           <div className="space-y-4 border-l-0 md:border-l border-gray-100 md:pl-8">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2"><Network size={16} /> Konektivita & SW</h3>
             <div className={`p-2 rounded-lg border flex items-center gap-3 ${customer.has_comscale ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
@@ -170,7 +162,7 @@ export function CustomerDetailPage() {
         </div>
       </div>
 
-      {/* --- CENTRÁLNÍ PLÁNOVÁNÍ VÝJEZDŮ --- */}
+      {/* PLÁNOVANÉ VÝJEZDY */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-extrabold text-gray-800 flex items-center gap-2">
@@ -195,7 +187,6 @@ export function CustomerDetailPage() {
               <div key={visit.id} className="bg-white border-2 border-orange-200 p-5 rounded-xl shadow-sm relative overflow-hidden flex flex-col justify-between">
                 <div className="absolute left-0 top-0 w-1.5 h-full bg-orange-500"></div>
                 <div>
-                  {/* Hlavička výjezdu */}
                   <div className="flex items-start justify-between mb-4 pl-2">
                     <div>
                       <span className="inline-flex items-center gap-1.5 text-sm font-bold text-orange-800 bg-orange-50 px-3 py-1 rounded-lg border border-orange-100">
@@ -208,14 +199,12 @@ export function CustomerDetailPage() {
                     </button>
                   </div>
 
-                  {/* Poznámka */}
                   {visit.note && (
                     <p className="text-gray-700 text-sm font-medium ml-2 mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
                        {visit.note}
                     </p>
                   )}
 
-                  {/* Zahrnuté stroje */}
                   <div className="ml-2">
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Stroje k obsloužení ({visit.planned_visit_machines?.length || 0})</h4>
                     <div className="space-y-1.5">
@@ -235,7 +224,7 @@ export function CustomerDetailPage() {
         )}
       </div>
 
-      {/* SEZNAM STROJŮ U TOHOTO ZÁKAZNÍKA */}
+      {/* SEZNAM STROJŮ */}
       <h2 className="text-2xl font-extrabold text-gray-800 mb-4 flex items-center gap-2">
         <Server className="text-blue-600" />
         Evidované stroje
@@ -262,9 +251,9 @@ export function CustomerDetailPage() {
         )}
       </div>
 
-      {/* --- MODAL PRO PLÁNOVÁNÍ (Nákupní košík) --- */}
+      {/* MODAL PRO VÝJEZDY */}
       {isVisitModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
             <div className="bg-[#0f2c59] p-4 flex items-center justify-between text-white shrink-0">
               <h3 className="font-bold flex items-center gap-2">
