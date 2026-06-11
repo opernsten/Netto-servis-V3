@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact, Truck, CalendarClock, AlertTriangle, Plus, Trash2, X, CheckSquare, Compass } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact, Truck, CalendarClock, Plus, Trash2, X, CheckSquare, Compass } from 'lucide-react';
 import { getCustomerDetail } from '../../services/customerService';
 import { createPlannedVisit, getPlannedVisitsForCustomer, deletePlannedVisit } from '../../services/visitService';
 import { getStatusConfig } from '../../utils/statusConfig';

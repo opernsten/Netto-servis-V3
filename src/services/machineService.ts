@@ -152,3 +152,16 @@ export async function getMachineDetail(id: string) {
 
   return { data, error };
 }
+
+// Zapsání nové roční MID zkoušky (aktualizuje datum na dnešek)
+export async function updateMidLastVerification(machineId: string) {
+  const today = new Date().toISOString().split('T')[0]; // Dnešní datum ve formátu YYYY-MM-DD
+  
+  const { data, error } = await supabase
+    .from('machines')
+    .update({ mid_last_verification_date: today })
+    .eq('id', machineId)
+    .select();
+
+  return { data, error };
+}

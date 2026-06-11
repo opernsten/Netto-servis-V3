@@ -4,6 +4,7 @@ import { Users, Server, AlertTriangle, Activity, ArrowRight, Wrench, PlusCircle,
 import { getAllCustomers } from '../../services/customerService';
 import { getMachinesWithCustomers } from '../../services/machineService';
 import { supabase } from '../../services/supabase';
+import { MidWatchdog } from '../../components/MidWatchdog'; // IMPORT HLÍDACÍHO PSA
 
 export function DashboardPage() {
   const [stats, setStats] = useState({
@@ -15,6 +16,7 @@ export function DashboardPage() {
   
   const [urgentMachines, setUrgentMachines] = useState<any[]>([]);
   const [upcomingVisits, setUpcomingVisits] = useState<any[]>([]);
+  const [allMachines, setAllMachines] = useState<any[]>([]); // PAMĚŤ PRO PSA
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +27,8 @@ export function DashboardPage() {
       const { data: machines } = await getMachinesWithCustomers();
       
       if (customers && machines) {
+        setAllMachines(machines); // Předáme všechny stroje psovi
+        
         const errorMachines = machines.filter(m => m.status === 'Porucha');
         const maintMachines = machines.filter(m => m.status === 'Nutná údržba');
         
@@ -35,11 +39,9 @@ export function DashboardPage() {
           maintenance: maintMachines.length
         });
 
-        // Stroje vyžadující pozornost (Poruchy a Údržby)
         setUrgentMachines([...errorMachines, ...maintMachines].slice(0, 5));
       }
 
-      // OPRAVA CHYBY: Ptáme se na machine_id, protože id v této tabulce neexistuje
       const { data: visits, error: visitsError } = await supabase
         .from('planned_visits')
         .select(`
@@ -51,11 +53,10 @@ export function DashboardPage() {
           planned_visit_machines ( machine_id )
         `)
         .order('visit_date', { ascending: true })
-        .limit(5);
+        .limit(3);
 
       if (visitsError) {
         console.error("Chyba výjezdů na Dashboardu:", visitsError);
-        alert("Dashboard hlásí chybu: " + visitsError.message);
       }
 
       if (visits) {
@@ -102,7 +103,6 @@ export function DashboardPage() {
             <p className="text-2xl font-extrabold text-gray-800">{stats.customers}</p>
           </div>
         </div>
-
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
           <div className="p-4 bg-indigo-50 text-indigo-600 rounded-xl"><Server size={24} /></div>
           <div>
@@ -110,7 +110,6 @@ export function DashboardPage() {
             <p className="text-2xl font-extrabold text-gray-800">{stats.machines}</p>
           </div>
         </div>
-
         <div className="bg-white rounded-xl p-6 shadow-sm border border-red-200 flex items-center gap-4 relative overflow-hidden">
           <div className="absolute right-0 top-0 w-2 h-full bg-red-500"></div>
           <div className="p-4 bg-red-50 text-red-600 rounded-xl"><AlertTriangle size={24} /></div>
@@ -119,7 +118,6 @@ export function DashboardPage() {
             <p className="text-2xl font-extrabold text-red-600">{stats.errors}</p>
           </div>
         </div>
-
         <div className="bg-white rounded-xl p-6 shadow-sm border border-orange-200 flex items-center gap-4 relative overflow-hidden">
           <div className="absolute right-0 top-0 w-2 h-full bg-orange-400"></div>
           <div className="p-4 bg-orange-50 text-orange-500 rounded-xl"><Wrench size={24} /></div>
@@ -132,8 +130,10 @@ export function DashboardPage() {
 
       {/* 3. MONITORING PANELY */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
         <div className="lg:col-span-2 space-y-8">
+          
+          {/* HLÍDACÍ PES (Pokud je vše ok, tato komponenta se sama zneviditelní) */}
+          <MidWatchdog machines={allMachines} />
           
           {/* SEZNAM NEJBLIŽŠÍCH VÝJEZDŮ */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -142,12 +142,9 @@ export function DashboardPage() {
                 <CalendarClock className="text-orange-500" size={20} /> Nejbližší plánované výjezdy
               </h2>
             </div>
-            
             <div className="divide-y divide-gray-100">
               {upcomingVisits.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 font-medium">
-                  Aktuálně nemáš naplánované žádné budoucí servisy.
-                </div>
+                <div className="p-8 text-center text-gray-500 font-medium">Aktuálně nemáš naplánované žádné budoucí servisy.</div>
               ) : (
                 upcomingVisits.map((visit) => {
                   const isOverdue = new Date(visit.visit_date) < new Date(new Date().setHours(0,0,0,0));
@@ -158,27 +155,13 @@ export function DashboardPage() {
                           {new Date(visit.visit_date).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })}
                           {isOverdue && <div className="text-[10px] uppercase font-extrabold mt-0.5">Propadlé</div>}
                         </div>
-                        
                         <div>
-                          <h3 className="font-bold text-gray-800 text-lg">
-                            Výjezd k firmě: {visit.customers?.name || 'Neznámý zákazník'}
-                          </h3>
-                          <p className="text-sm text-gray-500 font-bold mb-1">
-                            Počet strojů k údržbě: {visit.planned_visit_machines?.length || 0}
-                          </p>
-                          {visit.note && (
-                            <p className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-100 mt-1 inline-block font-medium">
-                              {visit.note}
-                            </p>
-                          )}
+                          <h3 className="font-bold text-gray-800 text-lg">Výjezd k firmě: {visit.customers?.name || 'Neznámý zákazník'}</h3>
+                          <p className="text-sm text-gray-500 font-bold mb-1">Počet strojů k údržbě: {visit.planned_visit_machines?.length || 0}</p>
+                          {visit.note && <p className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-100 mt-1 inline-block font-medium">{visit.note}</p>}
                         </div>
                       </div>
-                      <Link 
-                        to={`/zakaznici/detail/${visit.customer_id}`}
-                        className="px-4 py-2 text-sm font-bold text-[#0f2c59] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-center shrink-0"
-                      >
-                        Otevřít výjezd
-                      </Link>
+                      <Link to={`/zakaznici/detail/${visit.customer_id}`} className="px-4 py-2 text-sm font-bold text-[#0f2c59] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-center shrink-0">Otevřít výjezd</Link>
                     </div>
                   );
                 })
@@ -189,14 +172,9 @@ export function DashboardPage() {
           {/* CRITICAL PORUCHY */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <Activity className="text-red-500" size={20} /> Stroje vyžadující okamžitou pozornost (Poruchy)
-              </h2>
-              <Link to="/stroje" className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                Všechny stroje <ArrowRight size={16} />
-              </Link>
+              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Activity className="text-red-500" size={20} /> Stroje vyžadující pozornost (Poruchy)</h2>
+              <Link to="/stroje" className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">Všechny stroje <ArrowRight size={16} /></Link>
             </div>
-            
             <div className="divide-y divide-gray-50">
               {urgentMachines.length === 0 ? (
                 <div className="p-8 text-center text-gray-500 font-medium">Všechny stroje jsou aktuálně v pořádku. Skvělá práce!</div>
@@ -216,7 +194,6 @@ export function DashboardPage() {
               )}
             </div>
           </div>
-
         </div>
 
         {/* PRAVÝ PANEL */}
