@@ -4,7 +4,7 @@ import { Users, Server, AlertTriangle, Activity, ArrowRight, Wrench, PlusCircle,
 import { getAllCustomers } from '../../services/customerService';
 import { getMachinesWithCustomers } from '../../services/machineService';
 import { supabase } from '../../services/supabase';
-import { MidWatchdog } from '../../components/MidWatchdog'; // IMPORT HLÍDACÍHO PSA
+import { MidWatchdog } from '../../components/MidWatchdog';
 
 export function DashboardPage() {
   const [stats, setStats] = useState({
@@ -16,19 +16,27 @@ export function DashboardPage() {
   
   const [urgentMachines, setUrgentMachines] = useState<any[]>([]);
   const [upcomingVisits, setUpcomingVisits] = useState<any[]>([]);
-  const [allMachines, setAllMachines] = useState<any[]>([]); // PAMĚŤ PRO PSA
+  const [allMachines, setAllMachines] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [operatorName, setOperatorName] = useState<string>('Načítám...');
 
   useEffect(() => {
     async function loadDashboardData() {
       setLoading(true);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && user.email) {
+        const nameFromEmail = user.email.split('@')[0];
+        setOperatorName(user.user_metadata?.name || nameFromEmail);
+      } else {
+        setOperatorName('Olivier - SIS');
+      }
+      
       const { data: customers } = await getAllCustomers();
       const { data: machines } = await getMachinesWithCustomers();
       
       if (customers && machines) {
-        setAllMachines(machines); // Předáme všechny stroje psovi
-        
+        setAllMachines(machines);
         const errorMachines = machines.filter(m => m.status === 'Porucha');
         const maintMachines = machines.filter(m => m.status === 'Nutná údržba');
         
@@ -38,7 +46,6 @@ export function DashboardPage() {
           errors: errorMachines.length,
           maintenance: maintMachines.length
         });
-
         setUrgentMachines([...errorMachines, ...maintMachines].slice(0, 5));
       }
 
@@ -58,7 +65,6 @@ export function DashboardPage() {
       if (visitsError) {
         console.error("Chyba výjezdů na Dashboardu:", visitsError);
       }
-
       if (visits) {
         setUpcomingVisits(visits);
       }
@@ -67,6 +73,22 @@ export function DashboardPage() {
     }
     
     loadDashboardData();
+
+    // AUTOMATICKÝ REFRESH JMÉNA PŘI ZMĚNĚ V MODALU
+    const handleProfileUpdate = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && user.email) {
+        const nameFromEmail = user.email.split('@')[0];
+        setOperatorName(user.user_metadata?.name || nameFromEmail);
+      }
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    
+    // Čištění paměti při opuštění stránky
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
   }, []);
 
   const today = new Date().toLocaleDateString('cs-CZ', { 
@@ -78,10 +100,12 @@ export function DashboardPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       
-      {/* 1. UVÍTACÍ HLAVIČKA */}
+      {/* UVÍTACÍ HLAVIČKA */}
       <div className="bg-gradient-to-r from-[#0f2c59] to-blue-900 rounded-2xl p-8 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight mb-1">Vítej zpět, O.ERNSTEN!</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight mb-1">
+            Vítej zpět, {operatorName}!
+          </h1>
           <p className="text-blue-200 text-sm font-medium uppercase tracking-wider">{today}</p>
         </div>
         <div className="flex gap-3">
@@ -94,7 +118,7 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* 2. KARTY STATISTIK */}
+      {/* KARTY STATISTIK */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
           <div className="p-4 bg-blue-50 text-blue-600 rounded-xl"><Users size={24} /></div>
@@ -128,14 +152,12 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* 3. MONITORING PANELY */}
+      {/* MONITORING PANELY */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           
-          {/* HLÍDACÍ PES (Pokud je vše ok, tato komponenta se sama zneviditelní) */}
           <MidWatchdog machines={allMachines} />
           
-          {/* SEZNAM NEJBLIŽŠÍCH VÝJEZDŮ */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 bg-orange-50/30 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -169,7 +191,6 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* CRITICAL PORUCHY */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Activity className="text-red-500" size={20} /> Stroje vyžadující pozornost (Poruchy)</h2>
@@ -196,7 +217,6 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* PRAVÝ PANEL */}
         <div className="bg-[#0f2c59] rounded-xl shadow-sm border border-blue-900 p-6 text-white h-fit sticky top-6">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2 border-b border-blue-800 pb-2"><Activity size={20} className="text-blue-400" /> Rychlé akce</h3>
           <div className="space-y-3">
@@ -204,11 +224,10 @@ export function DashboardPage() {
               <div className="font-bold">Databáze firem</div><div className="text-xs text-blue-300 mt-1">Správa zákazníků a smluv</div>
             </Link>
             <Link to="/stroje" className="block w-full p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors">
-              <div className="font-bold">Evidovaná zařízení</div><div className="text-xs text-blue-300 mt-1">Seznam vah a jejich stavů</div>
+              <div className="font-bold">Evidovaná zařízení</div><div className="text-xs text-blue-300 mt-1">Seznam vah a their stavů</div>
             </Link>
           </div>
         </div>
-
       </div>
     </div>
   );

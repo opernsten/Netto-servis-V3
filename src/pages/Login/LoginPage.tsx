@@ -1,118 +1,108 @@
-import { useState, type FormEvent } from 'react';
-import { User, Lock } from 'lucide-react';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
+import { useState } from 'react';
+import { Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { signInWithEmail } from '../../services/signInWithEmail';
 
 export function LoginPage() {
-  // Stavy pro uložení hodnot z políček
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // Stavy pro hlídání načítání a případné chyby
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  // Funkce, která se spustí při odeslání formuláře
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(null);
+    setError('');
 
-    // Voláme naši striktně oddělenou přihlašovací funkci
-    const { error } = await signInWithEmail(email, password);
-
-    setLoading(false);
-
-    if (error) {
-      // Pokud Supabase vrátí chybu (např. špatné heslo)
-      setErrorMessage('Nesprávný e-mail nebo heslo.');
-      return;
+    const { error: loginError } = await signInWithEmail(email, password);
+    
+    if (loginError) {
+      setError('Nesprávné přihlašovací údaje nebo chyba připojení.');
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 p-4">
-      <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-2xl">
-        
-        {/* LEVÁ ČÁST - Modrý panel */}
-        <div className="hidden md:flex md:w-1/2 bg-blue-600 p-12 flex-col justify-center relative overflow-hidden text-white">
-          <div className="absolute top-[-10%] left-[-10%] w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-64 h-64 bg-blue-700 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-          
-          <div className="relative z-10">
-            <h1 className="text-4xl font-extrabold mb-2 tracking-tight">WELCOME BACK</h1>
-            <p className="text-blue-100 text-sm leading-relaxed mb-6">
-              Servisní a evidenční systém pro zařízení Wipotec. Přihlaste se pro správu zákazníků a servisních deníků.
-            </p>
+    <div className="min-h-screen flex bg-gray-50">
+      {/* LEVÁ STRANA: Firemní branding */}
+      <div className="hidden lg:flex flex-1 bg-[#0f2c59] flex-col justify-center px-12 text-white">
+        <div className="max-w-md">
+          <h1 className="text-5xl font-extrabold mb-6 leading-tight">Netto<br />Servisní modul</h1>
+          <p className="text-blue-200 text-lg mb-10">Profesionální správa a diagnostika váhových systémů Wipotec přímo ve vašich rukou.</p>
+          <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10">
+            <ShieldCheck size={32} className="text-blue-400" />
+            <div>
+              <p className="font-bold">Zabezpečený přístup</p>
+              <p className="text-xs text-blue-200">Data jsou šifrována a uložena v cloudu.</p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* PRAVÁ ČÁST - Formulář */}
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-white">
-          
-          {/* Textové logo Netto Servis */}
-          <div className="flex justify-center mb-8">
-            <div className="text-3xl font-extrabold tracking-tight text-[#0f2c59]">
-              NETTO <span className="text-blue-500">SERVIS</span>
-            </div>
+      {/* PRAVÁ STRANA: Formulář */}
+      <div className="flex-1 flex flex-col justify-center items-center p-8">
+        <div className="w-full max-w-sm">
+          <div className="mb-10 text-center lg:text-left">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Vítejte zpět</h2>
+            <p className="text-gray-500">Zadejte své údaje pro přístup do systému</p>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Přihlášení</h2>
-
-          {/* Zobrazení chyby, pokud se přihlášení nepovede */}
-          {errorMessage && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg text-center font-medium">
-              {errorMessage}
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">E-mail</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 text-gray-400" size={20} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                  placeholder="technik@netto.cz"
+                  required
+                />
+              </div>
             </div>
-          )}
 
-          <form onSubmit={handleSubmit}>
-            <Input 
-              type="email" 
-              placeholder="E-mail technika" 
-              icon={<User size={18} />} 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Heslo</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 text-gray-400" size={20} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 text-red-600 text-sm font-bold rounded-lg border border-red-100 flex items-center gap-2 animate-shake">
+                <AlertTriangle size={16} /> {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
               disabled={loading}
-            />
-            
-            <Input 
-              type="password" 
-              placeholder="Heslo" 
-              icon={<Lock size={18} />} 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-
-            <div className="flex items-center justify-between mb-6">
-              <label className="flex items-center text-xs text-gray-500 cursor-pointer">
-                <input type="checkbox" className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-600" />
-                Zapamatovat si mě
-              </label>
-              <a href="#" className="text-xs text-blue-600 font-semibold hover:underline">
-                Zapomenuté heslo?
-              </a>
-            </div>
-
-            <Button type="submit" variant="primary" className="mb-4" disabled={loading}>
-              {loading ? 'Ověřování...' : 'Přihlásit se'}
-            </Button>
-            
-            <div className="flex items-center my-4">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="px-3 text-xs text-gray-400">Nebo</span>
-              <div className="flex-grow border-t border-gray-200"></div>
-            </div>
-
-            <Button type="button" variant="outline" disabled={loading}>
-              Přihlásit se firemním účtem
-            </Button>
+              className="w-full bg-[#0f2c59] hover:bg-[#1a3a6e] text-white py-3.5 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loading ? <Loader2 className="animate-spin" size={20} /> : 'Přihlásit se'}
+            </button>
           </form>
 
+          <p className="mt-8 text-center text-xs text-gray-400 uppercase tracking-widest">
+            Netto Servis v1.0.1 (BETA)
+          </p>
         </div>
       </div>
     </div>
