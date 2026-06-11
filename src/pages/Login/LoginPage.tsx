@@ -101,7 +101,7 @@ export function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-gray-400 uppercase tracking-widest">
-            Netto Servis v1.0.1 (BETA)
+            Netto Servis v0.1.0 (BETA)
           </p>
         </div>
       </div>

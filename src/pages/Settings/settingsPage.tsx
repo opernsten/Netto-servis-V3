@@ -157,7 +157,7 @@ export function SettingsPage() {
                 <HardDrive size={20} />
                 <span className="font-medium">Verze aplikace</span>
               </div>
-              <span className="text-[#0f2c59] font-bold">v1.0.1 (BETA)</span>
+              <span className="text-[#0f2c59] font-bold">v0.1.0 (BETA)</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-gray-600">
