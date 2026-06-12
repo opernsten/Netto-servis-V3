@@ -1,12 +1,13 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { ArrowLeft, Wrench, Plus, Trash2, Upload } from 'lucide-react';
 import { createServiceLog, uploadAttachment } from '../../services/serviceLogService';
+import { getActiveTechnicians } from '../../services/technicianService';
 
 // TADY MI PAK MŮŽEŠ NAPSAT SVŮJ SEZNAM A JÁ TI HO TAM DOPLNÍM:
-const TECHNICIANS_LIST = ['O.ERNSTEN', 'D.MOLDOVAN', 'P.KREJČÍ', 'D.SVOBODA'];
+
 
 const WORK_TYPES = [
   'Profylaxe / Údržba',
@@ -21,6 +22,17 @@ export function NewServiceLogPage() {
   const navigate = useNavigate();
   
   const [logDate, setLogDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const [techniciansList, setTechniciansList] = useState<string[]>([]);
+  useEffect(() => {
+    async function loadTechnicians() {
+      const { data } = await getActiveTechnicians();
+      if (data) {
+        setTechniciansList(data.map(t => t.name));
+      }
+    }
+    loadTechnicians();
+  }, []);
   
   // Místo jednoho textu ukládáme pole (abychom mohli vybrat vícero)
   const [selectedTechnicians, setSelectedTechnicians] = useState<string[]>(['O.ERNSTEN']); 
@@ -141,12 +153,11 @@ export function NewServiceLogPage() {
               <div className="mt-6">
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Zasahující technici (možno vybrat více)</label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {TECHNICIANS_LIST.map((tech) => (
+                  {techniciansList.map((tech) => (
                     <label key={tech} className={`flex items-center justify-center p-3 rounded-lg border cursor-pointer transition-all ${
                       selectedTechnicians.includes(tech) ? 'bg-blue-50 border-blue-600 text-blue-700 font-bold shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
                     }`}>
                       <input 
-                        type="checkbox" 
                         className="hidden"
                         checked={selectedTechnicians.includes(tech)}
                         onChange={() => toggleSelection(tech, selectedTechnicians, setSelectedTechnicians)}
