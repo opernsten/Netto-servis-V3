@@ -14,10 +14,10 @@ export function Layout() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       // Přednostně ukážeme celé jméno z metadat, jinak e-mail
-      const displayName = user.user_metadata?.name || user.email || 'Olivier - SIS';
+      const displayName = user.user_metadata?.name || user.email || 'Neznámý uživatel';
       setCurrentUser(displayName);
     } else {
-      setCurrentUser('Olivier - SIS');
+      setCurrentUser('Neznámý uživatel');
     }
   }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { signInWithEmail } from '../../services/signInWithEmail';
+import packageInfo from '../../../package.json';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -57,7 +58,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                  placeholder="technik@netto.cz"
+                  placeholder="technik@vahynetto.cz"
                   required
                 />
               </div>
@@ -101,7 +102,7 @@ export function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-gray-400 uppercase tracking-widest">
-            Netto Servis v0.1.0 (BETA)
+            Netto Servis {packageInfo.version}
           </p>
         </div>
       </div>
