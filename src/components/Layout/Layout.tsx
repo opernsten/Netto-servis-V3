@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, Users, Server, Settings, LogOut, User as UserIcon } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { ProfileModal } from '../ProfileModal'; // <-- IMPORT NOVÉHO MODALU
+import { OfflineBanner } from '../OfflineBanner';
 
 export function Layout() {
   const location = useLocation();
@@ -40,7 +41,7 @@ export function Layout() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      
+      <OfflineBanner />
       {/* LEVÝ BOČNÍ PANEL (Sidebar) */}
       <div className="w-64 bg-[#0f2c59] text-white flex flex-col shadow-xl z-10 hidden md:flex">
         {/* Logo */}

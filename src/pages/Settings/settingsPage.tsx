@@ -2,34 +2,18 @@ import { useState, useEffect } from 'react';
 import { Database, Download, Activity, Server, HardDrive, CheckCircle, AlertTriangle, BellRing, Save } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import packageInfo from '../../../package.json';
+import { useNetwork } from '../../hooks/useNetwork';
 
 export function SettingsPage() {
-  const [isOnline, setIsOnline] = useState<boolean | null>(null);
-  const [pingTime, setPingTime] = useState<number | null>(null);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
-  
+  const { isOnline, ping } = useNetwork();
+
   // Stavy pro Hlídacího psa
   const [warningDays, setWarningDays] = useState<number>(60);
   const [criticalDays, setCriticalDays] = useState<number>(30);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Načtení spojení s databází
-    async function checkConnection() {
-      const start = Date.now();
-      const { error } = await supabase.from('customers').select('id').limit(1);
-      const end = Date.now();
-      
-      if (!error) {
-        setIsOnline(true);
-        setPingTime(end - start);
-      } else {
-        setIsOnline(false);
-      }
-    }
-    
-    checkConnection();
-    const interval = setInterval(checkConnection, 10000);
 
     // 2. Načtení uloženého nastavení pro Hlídacího psa z lokální paměti
     const savedWarning = localStorage.getItem('midWarningDays');
@@ -38,7 +22,6 @@ export function SettingsPage() {
     if (savedWarning) setWarningDays(parseInt(savedWarning, 10));
     if (savedCritical) setCriticalDays(parseInt(savedCritical, 10));
 
-    return () => clearInterval(interval);
   }, []);
 
   // Uložení nastavení Hlídacího psa
@@ -141,7 +124,7 @@ export function SettingsPage() {
                   <span className="text-gray-400 text-sm font-bold animate-pulse">Ověřuji...</span>
                 ) : isOnline ? (
                   <>
-                    <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-1 rounded">{pingTime} ms</span>
+                    <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-1 rounded">{ping} ms</span>
                     <span className="flex items-center gap-1 text-green-600 font-bold bg-green-50 px-3 py-1 rounded-lg">
                       <CheckCircle size={16} /> Online
                     </span>
