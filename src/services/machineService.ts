@@ -1,55 +1,27 @@
 import { supabase } from './supabase';
+import type { Machine } from '../types/database';
+
+// Typ pro odesílání stroje (vynecháme ID a časy, které generuje databáze)
+export type MachineInsertData = Omit<Machine, 'id' | 'created_at' | 'mid_last_verification_date'>;
 
 // Funkce pro načtení seznamu zákazníků (pro roletku)
 export async function getCustomers() {
   const { data, error } = await supabase
     .from('customers')
     .select('id, name')
-    .order('name'); // Seřadí firmy podle abecedy
+    .order('name');
 
   return { data, error };
 }
 
-// Funkce pro uložení nového stroje
-export async function createMachine(
-  customerId: string, 
-  model: string, 
-  serialNumber: string,
-  status: string,
-  installationDate: string | null,
-  warrantyUntil: string | null,
-  softwareVersion: string,
-  notes: string,
-  supplier: string,
-  isMid: boolean,
-  midInitialVerificationDate: string | null,
-  hasSparePartsPackage: boolean,
-  placementLine: string,
-  productionYear: number | null
-) {
+// Zkrácená a bezpečná funkce pro vytvoření stroje
+export async function createMachine(machineData: MachineInsertData) {
   const { data, error } = await supabase
     .from('machines')
-    .insert([
-      { 
-        customer_id: customerId, 
-        model: model, 
-        serial_number: serialNumber,
-        status: status,
-        installation_date: installationDate || null,
-        warranty_until: warrantyUntil || null,
-        software_version: softwareVersion,
-        notes: notes,
-        supplier: supplier,
-        is_mid: isMid,
-        mid_initial_verification_date: midInitialVerificationDate || null,
-        has_spare_parts_package: hasSparePartsPackage,
-        placement_line: placementLine,
-        production_year: productionYear
-      }
-    ])
+    .insert([machineData]) // Posíláme celý zabalený objekt stroje
     .select();
 
-  return { data, error };
+  return { data: data as Machine[] | null, error };
 }
 
 export async function getMachineById(id: string) {
@@ -59,49 +31,18 @@ export async function getMachineById(id: string) {
     .eq('id', id)
     .single();
 
-  return { data, error };
+  return { data: data as Machine | null, error };
 }
 
-// ZBRUSU NOVÁ: Aktualizace stroje
-export async function updateMachine(
-  id: string,
-  customerId: string, 
-  model: string, 
-  serialNumber: string,
-  status: string,
-  installationDate: string | null,
-  warrantyUntil: string | null,
-  softwareVersion: string,
-  notes: string,
-  supplier: string,
-  isMid: boolean,
-  midInitialVerificationDate: string | null,
-  hasSparePartsPackage: boolean,
-  placementLine: string,
-  productionYear: number | null
-) {
+// Zkrácená a bezpečná funkce pro aktualizaci
+export async function updateMachine(id: string, machineData: MachineInsertData) {
   const { data, error } = await supabase
     .from('machines')
-    .update({ 
-        customer_id: customerId, 
-        model: model, 
-        serial_number: serialNumber,
-        status: status,
-        installation_date: installationDate || null,
-        warranty_until: warrantyUntil || null,
-        software_version: softwareVersion,
-        notes: notes,
-        supplier: supplier,
-        is_mid: isMid,
-        mid_initial_verification_date: midInitialVerificationDate || null,
-        has_spare_parts_package: hasSparePartsPackage,
-        placement_line: placementLine,
-        production_year: productionYear
-    })
+    .update(machineData) // Posíláme balíček
     .eq('id', id)
     .select();
 
-  return { data, error };
+  return { data: data as Machine[] | null, error };
 }
 
 // Funkce pro načtení všech strojů včetně jména zákazníka
@@ -114,9 +55,10 @@ export async function getMachinesWithCustomers() {
         name
       )
     `)
-    .order('created_at', { ascending: false }); // Nejnovější přidáme nahoru
+    .order('created_at', { ascending: false });
 
-  return { data, error };
+  // Tady vracíme 'any', protože se tam navíc lepí i ta spojená tabulka zákazníků
+  return { data: data as any, error }; 
 }
 
 // Funkce pro smazání stroje podle jeho ID
@@ -150,12 +92,12 @@ export async function getMachineDetail(id: string) {
     .eq('id', id)
     .single();
 
-  return { data, error };
+  return { data: data as any, error };
 }
 
 // Zapsání nové roční MID zkoušky (aktualizuje datum na dnešek)
 export async function updateMidLastVerification(machineId: string) {
-  const today = new Date().toISOString().split('T')[0]; // Dnešní datum ve formátu YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
   
   const { data, error } = await supabase
     .from('machines')
@@ -163,5 +105,5 @@ export async function updateMidLastVerification(machineId: string) {
     .eq('id', machineId)
     .select();
 
-  return { data, error };
+  return { data: data as Machine[] | null, error };
 }

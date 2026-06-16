@@ -51,15 +51,33 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
     e.preventDefault();
     setStatus(customerId ? 'Aktualizuji data...' : 'Ukládám do databáze...');
 
-    // Ujisti se, že pořadí parametrů přesně odpovídá tomu, jak jsi to nastavil v customerService.ts
+    // Zabalíme všetky dáta z formulára do jedného čistého objektu.
+    // Kľúče (názvy vľavo) MUSIA presne zodpovedať nášmu novému slovníku v database.ts
+    const customerData = {
+      name: name,
+      ico: ico,
+      street: street,
+      city: city,
+      zip: zip,
+      country: country,
+      email: email,
+      phone: phone,
+      has_service_contract: hasServiceContract,
+      has_comscale: hasComscale,
+      has_vpn: hasVpn,
+      contact_person: contactPerson,
+      coach: coach
+    };
+
+    // Namiesto 14 parametrov teraz posielame len náš jeden balíček
     const result = customerId 
-      ? await updateCustomer(customerId, name, ico, street, city, zip, country, email, phone, hasServiceContract, hasComscale, hasVpn, contactPerson, coach)
-      : await createCustomer(name, ico, street, city, zip, country, email, phone, hasServiceContract, hasComscale, hasVpn, contactPerson, coach);
+      ? await updateCustomer(customerId, customerData)
+      : await createCustomer(customerData);
 
     if (result.error) {
-      setStatus('Chyba při ukládání: ' + result.error.message);
+      setStatus('Chyba pri ukladaní: ' + result.error.message);
     } else {
-      setStatus(customerId ? 'Firma byla úspěšně aktualizována!' : 'Firma byla úspěšně přidána!');
+      setStatus(customerId ? 'Firma bola úspešne aktualizovaná!' : 'Firma bola úspešne pridaná!');
       setTimeout(() => {
         if (customerId) {
           navigate(`/zakaznici/detail/${customerId}`);

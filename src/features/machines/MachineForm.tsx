@@ -70,18 +70,37 @@ export function MachineForm({ machineId }: { machineId?: string }) {
 
     setFormStatus(machineId ? 'Aktualizuji data stroje...' : 'Ukládám nový stroj...');
 
-    const parsedYear = productionYear ? parseInt(productionYear, 10) : null;
+    // Převod roku z textu na číslo (pokud je prázdné, vrátí undefined)
+    const parsedYear = productionYear ? parseInt(productionYear, 10) : undefined;
 
+    // Zabalení všech dat do jednoho objektu s názvy, které databáze zná
+    const machineData = {
+      customer_id: customerId,
+      model: model,
+      serial_number: serialNumber,
+      status: status,
+      installation_date: installationDate || undefined,
+      warranty_until: warrantyUntil || undefined,
+      software_version: softwareVersion,
+      notes: notes,
+      supplier: supplier,
+      is_mid: isMid,
+      mid_initial_verification_date: midInitialVerificationDate || undefined,
+      has_spare_parts_package: hasSparePartsPackage,
+      placement_line: placementLine,
+      production_year: parsedYear
+    };
+
+    // Odeslání jediného parametru 'machineData'
     const result = machineId
-      ? await updateMachine(machineId, customerId, model, serialNumber, status, installationDate, warrantyUntil, softwareVersion, notes, supplier, isMid, midInitialVerificationDate, hasSparePartsPackage, placementLine, parsedYear)
-      : await createMachine(customerId, model, serialNumber, status, installationDate, warrantyUntil, softwareVersion, notes, supplier, isMid, midInitialVerificationDate, hasSparePartsPackage, placementLine, parsedYear);
+      ? await updateMachine(machineId, machineData)
+      : await createMachine(machineData);
 
     if (result.error) {
       setFormStatus('Chyba: ' + result.error.message);
     } else {
       setFormStatus(machineId ? 'Stroj úspěšně aktualizován!' : 'Stroj úspěšně přidán do systému!');
       
-      // ZMĚNA: Přesměrování po krátké pauze (aby uživatel viděl zelenou hlášku)
       setTimeout(() => {
         if (machineId) {
           navigate(`/stroje/detail/${machineId}`);
