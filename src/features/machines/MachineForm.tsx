@@ -5,6 +5,7 @@ import { Button } from '../../components/Button';
 import { getCustomers } from '../../services/machineService';
 import { createMachine, getMachineById, updateMachine } from '../../services/machineService';
 import { MACHINE_STATUSES } from '../../utils/statusConfig';
+import { addToOfflineQueue } from '../../services/syncService';
 
 export function MachineForm({ machineId }: { machineId?: string }) {
   const navigate = useNavigate(); // PŘIDÁNO: inicializace navigace
@@ -90,6 +91,27 @@ export function MachineForm({ machineId }: { machineId?: string }) {
       placement_line: placementLine,
       production_year: parsedYear
     };
+
+    // ==========================================
+    // 🚀 ZÁCHRANNÁ OFFLINE SÍŤ
+    // ==========================================
+    if (!navigator.onLine) {
+      setFormStatus('Jsi offline. Ukládám stroj do zařízení...');
+      
+      if (machineId) {
+        // Úprava existujícího
+        addToOfflineQueue('UPDATE_MACHINE', machineData, machineId);
+      } else {
+        // Vytvoření nového
+        addToOfflineQueue('CREATE_MACHINE', machineData);
+      }
+
+      setTimeout(() => {
+        navigate(machineId ? `/stroje/detail/${machineId}` : '/stroje');
+      }, 1500);
+      return; // Zabrání odeslání online!
+    }
+    // ==========================================
 
     // Odeslání jediného parametru 'machineData'
     const result = machineId

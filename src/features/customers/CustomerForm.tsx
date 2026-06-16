@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { createCustomer, getCustomerById, updateCustomer } from '../../services/customerService';
+import { addToOfflineQueue } from '../../services/syncService';
 
 export function CustomerForm({ customerId }: { customerId?: string }) {
   const navigate = useNavigate();
@@ -68,6 +69,27 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
       contact_person: contactPerson,
       coach: coach
     };
+
+    // ==========================================
+    // 🚀 ZÁCHRANNÁ OFFLINE SÍŤ
+    // ==========================================
+    if (!navigator.onLine) {
+      setStatus('Jsi offline. Ukládám zákazníka do zařízení...');
+      
+      if (customerId) {
+        // Úprava existujícího
+        addToOfflineQueue('UPDATE_CUSTOMER', customerData, customerId);
+      } else {
+        // Vytvoření nového
+        addToOfflineQueue('CREATE_CUSTOMER', customerData);
+      }
+
+      setTimeout(() => {
+        navigate(customerId ? `/zakaznici/detail/${customerId}` : '/zakaznici');
+      }, 1500);
+      return; // Zabrání odeslání online!
+    }
+    // ==========================================
 
     // Namiesto 14 parametrov teraz posielame len náš jeden balíček
     const result = customerId 

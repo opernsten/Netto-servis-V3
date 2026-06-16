@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNetwork } from '../hooks/useNetwork';
+import { processOfflineQueue } from '../services/syncService';
 
 export function OfflineBanner() {
   const { isOnline } = useNetwork();
@@ -10,7 +11,10 @@ export function OfflineBanner() {
     if (isOnline === false) {
       setBannerState('offline_expanded'); // Spadl net -> plné okno
     } else if (isOnline === true) {
-      // Net naskočil -> Pokud jsme předtím měli výstrahu, přepneme na zelenou. Jinak to necháme skryté.
+      // 🚀 ZÁCHRANA DAT: Jakmile naskočí net (i při prvním spuštění aplikace), zavoláme Skladníka!
+      processOfflineQueue();
+      
+      // Přepnutí UI okna
       setBannerState(prev => (prev !== 'hidden' ? 'online' : 'hidden'));
     }
   }, [isOnline]);
