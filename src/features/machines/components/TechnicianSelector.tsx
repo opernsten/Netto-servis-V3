@@ -17,6 +17,7 @@ export function TechnicianSelector({
             selectedTechnicians.includes(tech) ? 'bg-blue-50 border-blue-600 text-blue-700 font-bold shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
           }`}>
             <input 
+              type="checkbox"
               className="hidden"
               checked={selectedTechnicians.includes(tech)}
               onChange={() => toggleSelection(tech, selectedTechnicians, setSelectedTechnicians)}
