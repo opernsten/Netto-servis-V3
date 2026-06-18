@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { Building2, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getAllCustomers, deleteCustomer } from '../../services/customerService';
+import type { Customer } from '../../types/database';
 
 export function CustomersPage() {
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   

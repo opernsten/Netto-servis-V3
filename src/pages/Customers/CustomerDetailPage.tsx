@@ -4,14 +4,15 @@ import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, Shiel
 import { getCustomerDetail } from '../../services/customerService';
 import { createPlannedVisit, getPlannedVisitsForCustomer, deletePlannedVisit } from '../../services/visitService';
 import { getStatusConfig } from '../../utils/statusConfig';
-import { getGoogleMapsRouteUrl } from '../../utils/mapUtils'; // <-- TADY IMPORTUJEME NAŠI NOVOU FUNKCI
+import { getGoogleMapsRouteUrl } from '../../utils/mapUtils';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
+import type { CustomerWithMachines, PlannedVisitForCustomer, Machine } from '../../types/database';
 
 export function CustomerDetailPage() {
   const { id } = useParams();
-  const [customer, setCustomer] = useState<any>(null);
-  const [plannedVisits, setPlannedVisits] = useState<any[]>([]);
+  const [customer, setCustomer] = useState<CustomerWithMachines | null>(null);
+  const [plannedVisits, setPlannedVisits] = useState<PlannedVisitForCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
@@ -208,7 +209,7 @@ export function CustomerDetailPage() {
                   <div className="ml-2">
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Stroje k obsloužení ({visit.planned_visit_machines?.length || 0})</h4>
                     <div className="space-y-1.5">
-                      {visit.planned_visit_machines?.map((link: any) => (
+                      {visit.planned_visit_machines?.map((link) => (
                         <Link to={`/stroje/detail/${link.machine.id}`} key={link.machine.id} className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 group border border-transparent hover:border-gray-100 transition-colors">
                           <CheckSquare size={14} className="text-green-500" />
                           <span className="font-bold text-sm text-[#0f2c59] group-hover:text-blue-600 transition-colors">{link.machine.model}</span>
@@ -233,7 +234,7 @@ export function CustomerDetailPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {customer.machines && customer.machines.length > 0 ? (
           <div className="divide-y divide-gray-100">
-            {customer.machines.map((machine: any) => (
+              {customer.machines.map((machine: Pick<Machine, 'id' | 'model' | 'serial_number' | 'status'>) => (
               <Link to={`/stroje/detail/${machine.id}`} key={machine.id} className="p-5 flex items-center justify-between hover:bg-gray-50 transition-colors block">
                 <div>
                   <div className="font-bold text-gray-800 text-lg">{machine.model}</div>
@@ -289,7 +290,7 @@ export function CustomerDetailPage() {
                 
                 {customer.machines && customer.machines.length > 0 ? (
                   <div className="space-y-2 max-h-48 overflow-y-auto p-1">
-                    {customer.machines.map((machine: any) => (
+                    {customer.machines.map((machine: Pick<Machine, 'id' | 'model' | 'serial_number' | 'status'>) => (
                       <label key={machine.id} className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
                         selectedMachineIds.includes(machine.id) 
                           ? 'bg-blue-50 border-blue-400 shadow-sm' 

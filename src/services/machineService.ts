@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Machine } from '../types/database';
+import type { Machine, MachineWithCustomer, MachineDetail } from '../types/database';
 
 // Typ pro odesílání stroje (vynecháme ID a časy, které generuje databáze)
 export type MachineInsertData = Omit<Machine, 'id' | 'created_at' | 'mid_last_verification_date'>;
@@ -57,8 +57,7 @@ export async function getMachinesWithCustomers() {
     `)
     .order('created_at', { ascending: false });
 
-  // Tady vracíme 'any', protože se tam navíc lepí i ta spojená tabulka zákazníků
-  return { data: data as any, error }; 
+  return { data: data as MachineWithCustomer[] | null, error };
 }
 
 // Funkce pro smazání stroje podle jeho ID
@@ -92,7 +91,7 @@ export async function getMachineDetail(id: string) {
     .eq('id', id)
     .single();
 
-  return { data: data as any, error };
+  return { data: data as MachineDetail | null, error };
 }
 
 // Zapsání nové roční MID zkoušky (aktualizuje datum na dnešek)

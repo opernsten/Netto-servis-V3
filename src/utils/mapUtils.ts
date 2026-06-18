@@ -1,4 +1,6 @@
-export function getGoogleMapsRouteUrl(customer: any): string {
+import type { Customer } from '../types/database';
+
+export function getGoogleMapsRouteUrl(customer: Customer): string {
   if (!customer) return '#';
   
   // Výchozí bod pro techniky

@@ -40,7 +40,7 @@ export function SettingsPage() {
   };
 
   // Univerzální funkce pro export CSV
-  const exportToCSV = (data: any[], filename: string) => {
+  const exportToCSV = (data: Record<string, unknown>[], filename: string) => {
     if (!data || !data.length) {
       setExportStatus(`Žádná data k exportu pro: ${filename}`);
       return;

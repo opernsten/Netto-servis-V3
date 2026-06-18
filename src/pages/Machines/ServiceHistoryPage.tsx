@@ -3,11 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Trash2, Users, Clock, FileText, Activity, Plus, Package, Image } from 'lucide-react';
 import { getLogsForMachine, deleteServiceLog } from '../../services/serviceLogService';
 import { getMachineById } from '../../services/machineService';
+import type { ServiceLog, Machine, SparePart } from '../../types/database';
 
 export function ServiceHistoryPage() {
   const { id } = useParams();
-  const [logs, setLogs] = useState<any[]>([]);
-  const [machine, setMachine] = useState<any>(null);
+  const [logs, setLogs] = useState<ServiceLog[]>([]);
+  const [machine, setMachine] = useState<Machine | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
@@ -117,7 +118,7 @@ export function ServiceHistoryPage() {
                         <Package size={14} /> Spotřebovaný materiál
                       </h4>
                       <div className="space-y-2">
-                        {log.spare_parts.map((part: any, index: number) => (
+                        {log.spare_parts.map((part: SparePart, index: number) => (
                           <div key={index} className="flex justify-between items-center text-sm border-b border-gray-200 border-dashed pb-1 last:border-0 last:pb-0">
                             <span className="font-semibold text-gray-700">{part.article}</span>
                             <span className="text-gray-600 font-bold bg-white px-2 py-0.5 rounded border border-gray-200">

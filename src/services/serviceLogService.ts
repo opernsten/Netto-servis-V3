@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import type { ServiceLog, SparePart } from '../types/database';
 
 // NOVÁ FUNKCE: Nahrání souboru do Supabase Storage
 export async function uploadAttachment(file: File) {
@@ -28,7 +29,7 @@ export async function createServiceLog(
   interventionType: string,
   description: string,
   timeSpent: string,
-  spareParts: any[],
+  spareParts: SparePart[],
   attachmentUrl: string | null // NOVÉ
 ) {
   const parsedTime = timeSpent ? parseFloat(timeSpent) : null;
@@ -60,7 +61,7 @@ export async function getLogsForMachine(machineId: string) {
     .order('date', { ascending: false })
     .order('created_at', { ascending: false });
 
-  return { data, error };
+  return { data: data as ServiceLog[] | null, error };
 }
 
 export async function deleteServiceLog(id: string) {

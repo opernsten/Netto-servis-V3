@@ -68,7 +68,7 @@ export function NewServiceLogPage() {
     setSpareParts(newParts);
   };
   
-  const updatePart = (index: number, field: 'article' | 'quantity', value: any) => {
+  const updatePart = (index: number, field: 'article' | 'quantity', value: string | number) => {
     const newParts = [...spareParts];
     newParts[index] = { ...newParts[index], [field]: value };
     setSpareParts(newParts);

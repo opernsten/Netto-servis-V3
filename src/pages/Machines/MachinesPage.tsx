@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { Server, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft, Filter } from 'lucide-react';
 import { getMachinesWithCustomers, deleteMachine } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
+import type { MachineWithCustomer } from '../../types/database';
 
 export function MachinesPage() {
-  const [machines, setMachines] = useState<any[]>([]);
+  const [machines, setMachines] = useState<MachineWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Stavy pro vyhledávání a filtrování

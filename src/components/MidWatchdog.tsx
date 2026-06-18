@@ -2,19 +2,20 @@
 import { Link } from 'react-router-dom';
 import { ShieldAlert, ShieldX, ShieldCheck } from 'lucide-react';
 import { calculateMidStatus } from '../utils/midUtils';
+import type { MachineWithCustomer, MidAlert } from '../types/database';
 
 interface MidWatchdogProps {
-  machines: any[];
+  machines: MachineWithCustomer[];
 }
 
 export function MidWatchdog({ machines }: MidWatchdogProps) {
   // Proženeme všechny evidované stroje přes náš výpočet a vyfiltrujeme ty ohrožené
-  const alerts = machines
+  const alerts: MidAlert[] = machines
     .map(machine => {
       const status = calculateMidStatus(machine);
       return status ? { machine, ...status } : null;
     })
-    .filter(Boolean) as any[];
+    .filter((alert): alert is MidAlert => alert !== null);
 
   // Seřadíme je, aby ty nejkritičtější (červené) byly vždy nahoře
   alerts.sort((a, b) => a.daysRemaining - b.daysRemaining);

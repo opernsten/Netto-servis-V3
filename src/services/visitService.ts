@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import type { PlannedVisitForCustomer } from '../types/database';
 
 // 1. Vytvoření nového výjezdu a připojení vybraných strojů
 export async function createPlannedVisit(customerId: string, visitDate: string, note: string, machineIds: string[]) {
@@ -43,7 +44,7 @@ export async function getPlannedVisitsForCustomer(customerId: string) {
     .eq('customer_id', customerId)
     .order('visit_date', { ascending: true });
 
-  return { data, error };
+  return { data: data as unknown as PlannedVisitForCustomer[] | null, error };
 }
 
 // 3. Smazání celého výjezdu (díky kaskádě v databázi se automaticky smažou i vazby na stroje)

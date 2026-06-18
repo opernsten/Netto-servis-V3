@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Customer } from '../types/database';
+import type { Customer, CustomerWithMachines } from '../types/database';
 
 // Vytvoříme speciální typ pro ODESÍLÁNÍ dat (zákazník bez ID a data vytvoření, to doplní databáze)
 export type CustomerInsertData = Omit<Customer, 'id' | 'created_at'>;
@@ -66,5 +66,5 @@ export async function getCustomerDetail(id: string) {
     .eq('id', id)
     .single();
 
-  return { data, error };
+  return { data: data as CustomerWithMachines | null, error };
 }

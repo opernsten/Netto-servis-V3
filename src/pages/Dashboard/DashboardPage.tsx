@@ -5,6 +5,7 @@ import { getAllCustomers } from '../../services/customerService';
 import { getMachinesWithCustomers } from '../../services/machineService';
 import { supabase } from '../../services/supabase';
 import { MidWatchdog } from '../../components/MidWatchdog';
+import type { MachineWithCustomer, PlannedVisitWithDetails } from '../../types/database';
 
 export function DashboardPage() {
   const [stats, setStats] = useState({
@@ -14,9 +15,9 @@ export function DashboardPage() {
     maintenance: 0
   });
   
-  const [urgentMachines, setUrgentMachines] = useState<any[]>([]);
-  const [upcomingVisits, setUpcomingVisits] = useState<any[]>([]);
-  const [allMachines, setAllMachines] = useState<any[]>([]);
+  const [urgentMachines, setUrgentMachines] = useState<MachineWithCustomer[]>([]);
+  const [upcomingVisits, setUpcomingVisits] = useState<PlannedVisitWithDetails[]>([]);
+  const [allMachines, setAllMachines] = useState<MachineWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   const [operatorName, setOperatorName] = useState<string>('Načítám...');
 

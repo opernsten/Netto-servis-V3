@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { getMachinesWithCustomers } from '../../services/machineService';
 import { Server } from 'lucide-react';
 import { getStatusConfig } from '../../utils/statusConfig';
+import type { MachineWithCustomer } from '../../types/database';
 
 export function MachineList() {
-  const [machines, setMachines] = useState<any[]>([]);
+  const [machines, setMachines] = useState<MachineWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Funkce pro načtení dat

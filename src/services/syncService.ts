@@ -12,7 +12,7 @@ export type SyncActionType =
 export type SyncAction = {
   id: string;
   type: SyncActionType;
-  payload: any;
+  payload: Record<string, unknown>;
   targetId?: string; // DŮLEŽITÉ: ID pro úpravy (např. ID stroje, který upravujeme)
   timestamp: number;
 };
@@ -20,7 +20,7 @@ export type SyncAction = {
 const QUEUE_KEY = 'netto_offline_queue';
 
 // 3. Ukládání do fronty
-export function addToOfflineQueue(type: SyncActionType, payload: any, targetId?: string) {
+export function addToOfflineQueue(type: SyncActionType, payload: Record<string, unknown>, targetId?: string) {
   const currentQueueStr = localStorage.getItem(QUEUE_KEY);
   const queue: SyncAction[] = currentQueueStr ? JSON.parse(currentQueueStr) : [];
 

@@ -4,10 +4,11 @@ import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus,
 // PŘIDÁN IMPORT: updateMidLastVerification
 import { getMachineDetail, updateMidLastVerification } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
+import type { MachineDetail } from '../../types/database';
 
 export function MachineDetailPage() {
   const { id } = useParams();
-  const [machine, setMachine] = useState<any>(null);
+  const [machine, setMachine] = useState<MachineDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadData() {
@@ -40,8 +41,8 @@ export function MachineDetailPage() {
   if (!machine) return <div className="p-8 text-red-500 font-medium">Zařízení nenalezeno.</div>;
   
   const plannedVisits = machine.planned_visit_machines
-    ?.map((link: any) => link.visit)
-    .sort((a: any, b: any) => new Date(a.visit_date).getTime() - new Date(b.visit_date).getTime()) || [];
+    ?.map((link) => link.visit)
+    .sort((a, b) => new Date(a.visit_date).getTime() - new Date(b.visit_date).getTime()) || [];
 
   return (
     <div className="p-8 max-w-6xl mx-auto relative">
@@ -199,7 +200,7 @@ export function MachineDetailPage() {
         
         {plannedVisits.length > 0 ? (
           <div className="space-y-3">
-            {plannedVisits.map((visit: any) => (
+            {plannedVisits.map((visit) => (
               <div key={visit.id} className="bg-orange-50 border-2 border-orange-400 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm relative overflow-hidden">
                 <div className="absolute left-0 top-0 w-2 h-full bg-orange-500"></div>
                 <div className="flex items-center gap-5 ml-2">

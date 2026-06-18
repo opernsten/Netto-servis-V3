@@ -1,6 +1,8 @@
 // src/utils/midUtils.ts
 
-export function calculateMidStatus(machine: any) {
+import type { Machine, MidStatus } from '../types/database';
+
+export function calculateMidStatus(machine: Machine): MidStatus | null {
   if (!machine || !machine.is_mid || !machine.mid_initial_verification_date) {
     return null;
   }

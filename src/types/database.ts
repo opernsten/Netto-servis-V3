@@ -70,3 +70,58 @@ export interface PlannedVisitMachine {
   visit_id: string;
   machine_id: string;
 }
+
+// ============================
+// Kompozitní typy pro Supabase relace
+// ============================
+
+/** Stroj s názvem zákazníka (z getMachinesWithCustomers) */
+export type MachineWithCustomer = Machine & {
+  customers: Pick<Customer, 'name'> | null;
+};
+
+/** Detail stroje včetně zákazníka a plánovaných výjezdů (z getMachineDetail) */
+export type MachineDetail = Machine & {
+  customers: Pick<Customer, 'id' | 'name' | 'city'> | null;
+  planned_visit_machines: {
+    visit: Pick<PlannedVisit, 'id' | 'visit_date' | 'note'>;
+  }[];
+};
+
+/** Zákazník s jeho stroji (z getCustomerDetail) */
+export type CustomerWithMachines = Customer & {
+  machines: Pick<Machine, 'id' | 'model' | 'serial_number' | 'status'>[];
+};
+
+/** Plánovaný výjezd s detaily pro Dashboard */
+export type PlannedVisitWithDetails = PlannedVisit & {
+  customers: Pick<Customer, 'name'> | null;
+  planned_visit_machines: {
+    machine_id: string;
+  }[];
+};
+
+/** Plánovaný výjezd pro zákaznický detail (včetně info o strojích) */
+export type PlannedVisitForCustomer = Pick<PlannedVisit, 'id' | 'visit_date' | 'note'> & {
+  planned_visit_machines: {
+    machine: Pick<Machine, 'id' | 'model' | 'serial_number'>;
+  }[];
+};
+
+/** Náhradní díl použitý při servisu */
+export interface SparePart {
+  article: string;
+  quantity: number;
+}
+
+/** Výsledek výpočtu MID expirace */
+export interface MidStatus {
+  expirationDate: Date;
+  daysRemaining: number;
+  colorStatus: 'ok' | 'yellow' | 'orange' | 'red';
+}
+
+/** MID upozornění se strojem (pro MidWatchdog) */
+export type MidAlert = MidStatus & {
+  machine: MachineWithCustomer;
+};
