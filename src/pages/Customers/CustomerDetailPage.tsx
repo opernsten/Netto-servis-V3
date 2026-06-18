@@ -1,80 +1,18 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact, Truck, CalendarClock, Plus, Trash2, X, CheckSquare, Compass } from 'lucide-react';
-import { getCustomerDetail } from '../../services/customerService';
-import { createPlannedVisit, getPlannedVisitsForCustomer, deletePlannedVisit } from '../../services/visitService';
+import { ArrowLeft, Building2, MapPin, Mail, Phone, Server, Edit, Monitor, ShieldCheck, Network, User, Contact, Truck, CalendarClock, Plus, Trash2, CheckSquare, Compass } from 'lucide-react';
 import { getStatusConfig } from '../../utils/statusConfig';
 import { getGoogleMapsRouteUrl } from '../../utils/mapUtils';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
-import type { CustomerWithMachines, PlannedVisitForCustomer, Machine } from '../../types/database';
+import { PlannedVisitModal } from '../../features/customers/components/PlannedVisitModal';
+import { useCustomerDetail } from '../../features/customers/hooks/useCustomerDetail';
+import type { Machine } from '../../types/database';
 
 export function CustomerDetailPage() {
   const { id } = useParams();
-  const [customer, setCustomer] = useState<CustomerWithMachines | null>(null);
-  const [plannedVisits, setPlannedVisits] = useState<PlannedVisitForCustomer[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const { customer, plannedVisits, loading, loadData, handleDeleteVisit } = useCustomerDetail(id);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
-  const [visitDate, setVisitDate] = useState('');
-  const [visitNote, setVisitNote] = useState('');
-  const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>([]);
-  const [modalStatus, setModalStatus] = useState<string | null>(null);
 
-  async function loadData() {
-    if (id) {
-      setLoading(true);
-      const { data: custData } = await getCustomerDetail(id);
-      setCustomer(custData);
-      
-      const { data: visitsData } = await getPlannedVisitsForCustomer(id);
-      if (visitsData) setPlannedVisits(visitsData);
-      
-      setLoading(false);
-    }
-  }
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
-
-  const toggleMachineSelection = (machineId: string) => {
-    if (selectedMachineIds.includes(machineId)) {
-      setSelectedMachineIds(selectedMachineIds.filter(id => id !== machineId));
-    } else {
-      setSelectedMachineIds([...selectedMachineIds, machineId]);
-    }
-  };
-
-  const handleSaveVisit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    if (selectedMachineIds.length === 0) {
-      setModalStatus('Musíš vybrat alespoň jeden stroj pro výjezd!');
-      return;
-    }
-    
-    setModalStatus('Ukládám výjezd...');
-    const { error } = await createPlannedVisit(id, visitDate, visitNote, selectedMachineIds);
-    
-    if (error) {
-      setModalStatus('Chyba: ' + error.message);
-    } else {
-      setIsVisitModalOpen(false);
-      setVisitDate('');
-      setVisitNote('');
-      setSelectedMachineIds([]);
-      setModalStatus(null);
-      loadData(); 
-    }
-  };
-
-  const handleDeleteVisit = async (visitId: string) => {
-    if (window.confirm('Opravdu chcete tento výjezd kompletně zrušit?')) {
-      await deletePlannedVisit(visitId);
-      loadData();
-    }
-  };
 
   if (loading) return <div className="p-8 text-gray-500 font-medium">Načítám kartu zákazníka...</div>;
   if (!customer) return <div className="p-8 text-red-500 font-medium">Zákazník nenalezen.</div>;
@@ -253,81 +191,13 @@ export function CustomerDetailPage() {
       </div>
 
       {/* MODAL PRO VÝJEZDY */}
-      {isVisitModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-[#0f2c59] p-4 flex items-center justify-between text-white shrink-0">
-              <h3 className="font-bold flex items-center gap-2">
-                <Truck size={20} className="text-orange-400" />
-                Nový plánovaný výjezd
-              </h3>
-              <button onClick={() => setIsVisitModalOpen(false)} className="hover:bg-white/20 p-1 rounded-lg transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className="overflow-y-auto p-6 space-y-5">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Datum výjezdu *</label>
-                <Input type="date" required value={visitDate} onChange={(e) => setVisitDate(e.target.value)} />
-              </div>
-              
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cíl výjezdu / Poznámka</label>
-                <textarea
-                  placeholder="např. Hromadná kalibrace, výměny senzorů..."
-                  value={visitNote}
-                  onChange={(e) => setVisitNote(e.target.value)}
-                  rows={2}
-                  className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-3.5 outline-none transition-all resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <CheckSquare size={16} /> Zařízení k údržbě (Vyberte 1 a více) *
-                </label>
-                
-                {customer.machines && customer.machines.length > 0 ? (
-                  <div className="space-y-2 max-h-48 overflow-y-auto p-1">
-                    {customer.machines.map((machine: Pick<Machine, 'id' | 'model' | 'serial_number' | 'status'>) => (
-                      <label key={machine.id} className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
-                        selectedMachineIds.includes(machine.id) 
-                          ? 'bg-blue-50 border-blue-400 shadow-sm' 
-                          : 'bg-white border-gray-200 hover:bg-gray-50'
-                      }`}>
-                        <input 
-                          type="checkbox" 
-                          className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
-                          checked={selectedMachineIds.includes(machine.id)}
-                          onChange={() => toggleMachineSelection(machine.id)}
-                        />
-                        <div className="ml-3">
-                          <div className={`font-bold text-sm ${selectedMachineIds.includes(machine.id) ? 'text-blue-800' : 'text-gray-800'}`}>
-                            {machine.model}
-                          </div>
-                          <div className="text-xs text-gray-500">S/N: {machine.serial_number}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-red-500 font-medium p-3 bg-red-50 rounded-lg">Zákazník nemá evidované žádné stroje.</div>
-                )}
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-gray-100 bg-gray-50 flex gap-3 shrink-0">
-              <Button type="button" onClick={handleSaveVisit} className="flex-1">Uložit výjezd</Button>
-              <button type="button" onClick={() => setIsVisitModalOpen(false)} className="px-6 bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold rounded-lg transition-colors">
-                Zrušit
-              </button>
-            </div>
-            
-            {modalStatus && <div className="p-3 bg-red-50 text-sm font-semibold text-red-600 text-center border-t border-red-100">{modalStatus}</div>}
-          </div>
-        </div>
-      )}
+      <PlannedVisitModal 
+        isOpen={isVisitModalOpen} 
+        onClose={() => setIsVisitModalOpen(false)} 
+        customerId={id!} 
+        customer={customer} 
+        onVisitCreated={loadData} 
+      />
 
     </div>
   );

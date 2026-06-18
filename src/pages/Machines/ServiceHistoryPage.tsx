@@ -112,23 +112,37 @@ export function ServiceHistoryPage() {
                   </p>
 
                   {/* Vykreslení náhradních dílů, pokud existují a nejsou prázdné */}
-                  {log.spare_parts && log.spare_parts.length > 0 && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                        <Package size={14} /> Spotřebovaný materiál
-                      </h4>
-                      <div className="space-y-2">
-                        {log.spare_parts.map((part: SparePart, index: number) => (
-                          <div key={index} className="flex justify-between items-center text-sm border-b border-gray-200 border-dashed pb-1 last:border-0 last:pb-0">
-                            <span className="font-semibold text-gray-700">{part.article}</span>
-                            <span className="text-gray-600 font-bold bg-white px-2 py-0.5 rounded border border-gray-200">
-                              {part.quantity} ks
-                            </span>
+                  {(() => {
+                    let parsedParts: SparePart[] = [];
+                    try {
+                      if (log.spare_parts) {
+                        parsedParts = typeof log.spare_parts === 'string' ? JSON.parse(log.spare_parts) : log.spare_parts;
+                      }
+                    } catch (e) {
+                      console.error("Failed to parse spare parts", e);
+                    }
+                    
+                    if (parsedParts && parsedParts.length > 0) {
+                      return (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <Package size={14} /> Spotřebovaný materiál
+                          </h4>
+                          <div className="space-y-2">
+                            {parsedParts.map((part: SparePart, index: number) => (
+                              <div key={index} className="flex justify-between items-center text-sm border-b border-gray-200 border-dashed pb-1 last:border-0 last:pb-0">
+                                <span className="font-semibold text-gray-700">{part.article}</span>
+                                <span className="text-gray-600 font-bold bg-white px-2 py-0.5 rounded border border-gray-200">
+                                  {part.quantity} ks
+                                </span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
 
                   {/* Vykreslení přílohy */}
                   {log.attachment_url && (

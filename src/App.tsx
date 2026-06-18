@@ -16,7 +16,7 @@ import { EditMachinePage } from './pages/Machines/EditMachinePage';
 import { MachineDetailPage } from './pages/Machines/MachineDetailPage';
 import { ServiceHistoryPage } from './pages/Machines/ServiceHistoryPage';
 import { NewServiceLogPage } from './pages/Machines/NewServiceLogPage';
-import { SettingsPage } from './pages/Settings/settingsPage';
+import { SettingsPage } from './pages/Settings/SettingsPage';
 
 import { GlobalErrorBoundary } from './components/feedback/GlobalErrorBoundary';
 

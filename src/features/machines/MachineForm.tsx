@@ -1,137 +1,10 @@
-import { useState, useEffect, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom'; // PŘIDÁNO: import pro přesměrování
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
-import { getCustomers } from '../../services/machineService';
-import { createMachine, getMachineById, updateMachine } from '../../services/machineService';
 import { MACHINE_STATUSES } from '../../utils/statusConfig';
-import { addToOfflineQueue } from '../../services/syncService';
+import { useMachineForm } from './hooks/useMachineForm';
 
 export function MachineForm({ machineId }: { machineId?: string }) {
-  const navigate = useNavigate(); // PŘIDÁNO: inicializace navigace
-  
-  const [customerId, setCustomerId] = useState('');
-  const [model, setModel] = useState('');
-  const [serialNumber, setSerialNumber] = useState('');
-  const [status, setStatus] = useState('OK');
-  const [installationDate, setInstallationDate] = useState('');
-  const [warrantyUntil, setWarrantyUntil] = useState('');
-  const [softwareVersion, setSoftwareVersion] = useState('');
-  const [notes, setNotes] = useState('');
-
-  const [supplier, setSupplier] = useState('');
-  const [isMid, setIsMid] = useState(false);
-  const [midInitialVerificationDate, setMidInitialVerificationDate] = useState('');
-  const [hasSparePartsPackage, setHasSparePartsPackage] = useState(false);
-  const [placementLine, setPlacementLine] = useState('');
-  const [productionYear, setProductionYear] = useState('');
-
-  const [customers, setCustomers] = useState<{ id: string, name: string }[]>([]);
-  const [formStatus, setFormStatus] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadCustomers() {
-      const { data } = await getCustomers();
-      if (data) setCustomers(data);
-    }
-    loadCustomers();
-  }, []);
-
-  useEffect(() => {
-    async function loadMachineData() {
-      if (machineId) {
-        const { data } = await getMachineById(machineId);
-        if (data) {
-          setCustomerId(data.customer_id || '');
-          setModel(data.model || '');
-          setSerialNumber(data.serial_number || '');
-          setStatus(data.status || 'OK');
-          setInstallationDate(data.installation_date || '');
-          setWarrantyUntil(data.warranty_until || '');
-          setSoftwareVersion(data.software_version || '');
-          setNotes(data.notes || '');
-          setSupplier(data.supplier || '');
-          setIsMid(data.is_mid || false);
-          setMidInitialVerificationDate(data.mid_initial_verification_date || '');
-          setHasSparePartsPackage(data.has_spare_parts_package || false);
-          setPlacementLine(data.placement_line || '');
-          setProductionYear(data.production_year ? data.production_year.toString() : '');
-        }
-      }
-    }
-    loadMachineData();
-  }, [machineId]);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!customerId) {
-      setFormStatus('Musíš vybrat zákazníka!');
-      return;
-    }
-
-    setFormStatus(machineId ? 'Aktualizuji data stroje...' : 'Ukládám nový stroj...');
-
-    // Převod roku z textu na číslo (pokud je prázdné, vrátí undefined)
-    const parsedYear = productionYear ? parseInt(productionYear, 10) : undefined;
-
-    // Zabalení všech dat do jednoho objektu s názvy, které databáze zná
-    const machineData = {
-      customer_id: customerId,
-      model: model,
-      serial_number: serialNumber,
-      status: status,
-      installation_date: installationDate || undefined,
-      warranty_until: warrantyUntil || undefined,
-      software_version: softwareVersion,
-      notes: notes,
-      supplier: supplier,
-      is_mid: isMid,
-      mid_initial_verification_date: midInitialVerificationDate || undefined,
-      has_spare_parts_package: hasSparePartsPackage,
-      placement_line: placementLine,
-      production_year: parsedYear
-    };
-
-    // ==========================================
-    // 🚀 ZÁCHRANNÁ OFFLINE SÍŤ
-    // ==========================================
-    if (!navigator.onLine) {
-      setFormStatus('Jsi offline. Ukládám stroj do zařízení...');
-      
-      if (machineId) {
-        // Úprava existujícího
-        addToOfflineQueue('UPDATE_MACHINE', machineData, machineId);
-      } else {
-        // Vytvoření nového
-        addToOfflineQueue('CREATE_MACHINE', machineData);
-      }
-
-      setTimeout(() => {
-        navigate(machineId ? `/stroje/detail/${machineId}` : '/stroje');
-      }, 1500);
-      return; // Zabrání odeslání online!
-    }
-    // ==========================================
-
-    // Odeslání jediného parametru 'machineData'
-    const result = machineId
-      ? await updateMachine(machineId, machineData)
-      : await createMachine(machineData);
-
-    if (result.error) {
-      setFormStatus('Chyba: ' + result.error.message);
-    } else {
-      setFormStatus(machineId ? 'Stroj úspěšně aktualizován!' : 'Stroj úspěšně přidán do systému!');
-      
-      setTimeout(() => {
-        if (machineId) {
-          navigate(`/stroje/detail/${machineId}`);
-        } else {
-          navigate('/stroje');
-        }
-      }, 1000);
-    }
-  };
+  const { formData, handleChange, handleSubmit, customers, formStatus, navigate } = useMachineForm(machineId);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -143,8 +16,8 @@ export function MachineForm({ machineId }: { machineId?: string }) {
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Provozovatel (Zákazník) *</label>
             <select 
               className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-3.5 outline-none transition-all"
-              value={customerId}
-              onChange={(e) => setCustomerId(e.target.value)}
+              value={formData.customerId}
+              onChange={(e) => handleChange('customerId', e.target.value)}
               required
             >
               <option value="" disabled>-- Vyber zákazníka ze seznamu --</option>
@@ -157,8 +30,8 @@ export function MachineForm({ machineId }: { machineId?: string }) {
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Aktuální stav zařízení</label>
             <select 
               className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-3.5 outline-none transition-all"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              value={formData.status}
+              onChange={(e) => handleChange('status', e.target.value)}
             >
               {MACHINE_STATUSES.map((s) => (
                 <option key={s.id} value={s.id}>{s.label}</option>
@@ -170,19 +43,19 @@ export function MachineForm({ machineId }: { machineId?: string }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Model stroje *</label>
-            <Input placeholder="např. Wipotec HC-M" value={model} onChange={(e) => setModel(e.target.value)} required />
+            <Input placeholder="např. Wipotec HC-M" value={formData.model} onChange={(e) => handleChange('model', e.target.value)} required />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Sériové číslo (S/N) *</label>
-            <Input placeholder="Zadejte S/N ze štítku" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} required />
+            <Input placeholder="Zadejte S/N ze štítku" value={formData.serialNumber} onChange={(e) => handleChange('serialNumber', e.target.value)} required />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dodavatel zařízení</label>
-            <Input placeholder="např. Netto Electronics" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
+            <Input placeholder="např. Netto Electronics" value={formData.supplier} onChange={(e) => handleChange('supplier', e.target.value)} />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rok výroby</label>
-            <Input type="number" placeholder="RRRR" value={productionYear} onChange={(e) => setProductionYear(e.target.value)} min="1990" max="2050" />
+            <Input type="number" placeholder="RRRR" value={formData.productionYear} onChange={(e) => handleChange('productionYear', e.target.value)} min="1990" max="2050" />
           </div>
         </div>
       </div>
@@ -193,21 +66,21 @@ export function MachineForm({ machineId }: { machineId?: string }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Přesné umístění v provozu (Linka, hala, sekce)</label>
-            <Input placeholder="např. Balicí linka č. 3 - Expedice sladkostí" value={placementLine} onChange={(e) => setPlacementLine(e.target.value)} />
+            <Input placeholder="např. Balicí linka č. 3 - Expedice sladkostí" value={formData.placementLine} onChange={(e) => handleChange('placementLine', e.target.value)} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Datum instalace</label>
-            <Input type="date" value={installationDate} onChange={(e) => setInstallationDate(e.target.value)} />
+            <Input type="date" value={formData.installationDate} onChange={(e) => handleChange('installationDate', e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Záruka do</label>
-            <Input type="date" value={warrantyUntil} onChange={(e) => setWarrantyUntil(e.target.value)} />
+            <Input type="date" value={formData.warrantyUntil} onChange={(e) => handleChange('warrantyUntil', e.target.value)} />
           </div>
           <div>
              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Verze softwaru (SW)</label>
-             <Input placeholder="např. v3.1.8 Build 45" value={softwareVersion} onChange={(e) => setSoftwareVersion(e.target.value)} />
+             <Input placeholder="např. v3.1.8 Build 45" value={formData.softwareVersion} onChange={(e) => handleChange('softwareVersion', e.target.value)} />
           </div>
         </div>
       </div>
@@ -221,18 +94,18 @@ export function MachineForm({ machineId }: { machineId?: string }) {
               <input 
                 type="checkbox" 
                 className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
-                checked={isMid}
-                onChange={(e) => setIsMid(e.target.checked)}
+                checked={formData.isMid}
+                onChange={(e) => handleChange('isMid', e.target.checked)}
               />
               <span className="ml-3 font-bold text-[#0f2c59] text-sm">
                 Zařízení podléhá úřednímu ověření (MID stroj)
               </span>
             </label>
 
-            {isMid && (
+            {formData.isMid && (
               <div className="pt-2 animate-fadeIn">
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Datum prvotního úředního ověření</label>
-                <Input type="date" value={midInitialVerificationDate} onChange={(e) => setMidInitialVerificationDate(e.target.value)} />
+                <Input type="date" value={formData.midInitialVerificationDate} onChange={(e) => handleChange('midInitialVerificationDate', e.target.value)} />
               </div>
             )}
           </div>
@@ -242,8 +115,8 @@ export function MachineForm({ machineId }: { machineId?: string }) {
               <input 
                 type="checkbox" 
                 className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
-                checked={hasSparePartsPackage}
-                onChange={(e) => setHasSparePartsPackage(e.target.checked)}
+                checked={formData.hasSparePartsPackage}
+                onChange={(e) => handleChange('hasSparePartsPackage', e.target.checked)}
               />
               <span className="ml-3 font-bold text-[#0f2c59] text-sm">
                 Zákazník má na provozovně balíček doporučených náhradních dílů (Spack)
@@ -258,14 +131,13 @@ export function MachineForm({ machineId }: { machineId?: string }) {
         <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Doplňující specifikace a poznámky</h3>
         <textarea
           placeholder="Poznámky k váze, specifika kalibrace, přístupová hesla do servisního menu..."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          value={formData.notes}
+          onChange={(e) => handleChange('notes', e.target.value)}
           rows={4}
           className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-3.5 outline-none transition-all resize-none"
         />
       </div>
       
-      {/* PŘIDÁNO: Zrušit tlačítko vedle odesílacího */}
       <div className="pt-4 flex gap-4">
         <Button type="submit" className="md:w-auto px-12">
           {machineId ? 'Uložit změny zařízení' : 'Uložit stroj do evidence'}

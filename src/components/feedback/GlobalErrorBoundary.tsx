@@ -51,9 +51,10 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 export function GlobalErrorBoundary({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   
-  const handleError = (error: Error, info: React.ErrorInfo) => {
+  const handleError = (error: unknown, info: React.ErrorInfo) => {
     // Zalogujeme do Supabase
-    logErrorToDB(error, info, user?.email || 'Nepřihlášen');
+    const errObj = error instanceof Error ? error : new Error(String(error));
+    logErrorToDB(errObj, info, user?.email || 'Nepřihlášen');
   };
 
   return (
