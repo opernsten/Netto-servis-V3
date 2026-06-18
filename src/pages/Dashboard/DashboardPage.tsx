@@ -5,6 +5,7 @@ import { getAllCustomers } from '../../services/customerService';
 import { getMachinesWithCustomers } from '../../services/machineService';
 import { supabase } from '../../services/supabase';
 import { MidWatchdog } from '../../components/MidWatchdog';
+import { useAuth } from '../../contexts/AuthContext';
 import type { MachineWithCustomer, PlannedVisitWithDetails } from '../../types/database';
 
 export function DashboardPage() {
@@ -19,19 +20,11 @@ export function DashboardPage() {
   const [upcomingVisits, setUpcomingVisits] = useState<PlannedVisitWithDetails[]>([]);
   const [allMachines, setAllMachines] = useState<MachineWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [operatorName, setOperatorName] = useState<string>('Načítám...');
+  const { operatorName } = useAuth();
 
   useEffect(() => {
     async function loadDashboardData() {
       setLoading(true);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && user.email) {
-        const nameFromEmail = user.email.split('@')[0];
-        setOperatorName(user.user_metadata?.name || nameFromEmail);
-      } else {
-        setOperatorName('Olivier - SIS');
-      }
       
       const { data: customers } = await getAllCustomers();
       const { data: machines } = await getMachinesWithCustomers();
@@ -67,29 +60,13 @@ export function DashboardPage() {
         console.error("Chyba výjezdů na Dashboardu:", visitsError);
       }
       if (visits) {
-        setUpcomingVisits(visits);
+        setUpcomingVisits(visits as unknown as PlannedVisitWithDetails[]);
       }
       
       setLoading(false);
     }
     
     loadDashboardData();
-
-    // AUTOMATICKÝ REFRESH JMÉNA PŘI ZMĚNĚ V MODALU
-    const handleProfileUpdate = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && user.email) {
-        const nameFromEmail = user.email.split('@')[0];
-        setOperatorName(user.user_metadata?.name || nameFromEmail);
-      }
-    };
-
-    window.addEventListener('profile-updated', handleProfileUpdate);
-    
-    // Čištění paměti při opuštění stránky
-    return () => {
-      window.removeEventListener('profile-updated', handleProfileUpdate);
-    };
   }, []);
 
   const today = new Date().toLocaleDateString('cs-CZ', { 

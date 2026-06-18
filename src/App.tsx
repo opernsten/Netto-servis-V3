@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import type { User } from '@supabase/supabase-js';
-import { supabase } from './services/supabase';
+import { useAuth } from './contexts/AuthContext';
 
 // Importy komponent
 import { LoginPage } from './pages/Login/LoginPage';
@@ -21,21 +19,7 @@ import { NewServiceLogPage } from './pages/Machines/NewServiceLogPage';
 import { SettingsPage } from './pages/Settings/settingsPage';
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setTimeout(() => setIsLoading(false), 800);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, isLoading } = useAuth();
 
   if (isLoading) return <LoadingScreen />;
 

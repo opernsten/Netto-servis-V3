@@ -1,30 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, Users, Server, Settings, LogOut, User as UserIcon } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { ProfileModal } from '../ProfileModal'; // <-- IMPORT NOVÉHO MODALU
 import { OfflineBanner } from '../OfflineBanner';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function Layout() {
   const location = useLocation();
-  const [currentUser, setCurrentUser] = useState<string>('Načítám...');
+  const { operatorName } = useAuth();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // Stav pro otevření okna
-
-  // Funkce pro načtení uživatele (použijeme při startu i po úpravě)
-  async function fetchUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      // Přednostně ukážeme celé jméno z metadat, jinak e-mail
-      const displayName = user.user_metadata?.name || user.email || 'Neznámý uživatel';
-      setCurrentUser(displayName);
-    } else {
-      setCurrentUser('Neznámý uživatel');
-    }
-  }
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -83,8 +68,8 @@ export function Layout() {
               <div className="text-[10px] text-blue-300 font-bold uppercase tracking-wider group-hover:text-blue-400 transition-colors">
                 Přihlášený uživatel
               </div>
-              <div className="text-sm font-semibold text-white truncate" title={currentUser}>
-                {currentUser}
+              <div className="text-sm font-semibold text-white truncate" title={operatorName}>
+                {operatorName}
               </div>
             </div>
           </button>
@@ -112,7 +97,6 @@ export function Layout() {
       <ProfileModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)} 
-        onUpdate={(newName) => setCurrentUser(newName)} // Okamžitá aktualizace textu v menu
       />
 
     </div>

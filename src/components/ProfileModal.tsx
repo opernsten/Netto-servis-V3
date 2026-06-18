@@ -2,16 +2,17 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { X, User, Mail, Shield, Save } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import { useAuth } from '../contexts/AuthContext';
 import { Input } from './Input';
 import { Button } from './Button';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: (newName: string) => void;
 }
 
-export function ProfileModal({ isOpen, onClose, onUpdate }: ProfileModalProps) {
+export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
+  const { refreshProfile } = useAuth();
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ export function ProfileModal({ isOpen, onClose, onUpdate }: ProfileModalProps) {
     setLoading(true);
     setStatus(null);
 
-    const { data, error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.updateUser({
       data: { name: fullName }
     });
 
@@ -47,12 +48,8 @@ export function ProfileModal({ isOpen, onClose, onUpdate }: ProfileModalProps) {
     } else {
       setStatus({ type: 'success', message: 'Profil byl úspěšně aktualizován!' });
       
-      const updatedName = fullName || data.user?.email?.split('@')[0] || 'Operátor';
-      onUpdate(updatedName);
+      await refreshProfile(); // Refresh přes kontext aktualizuje celou aplikaci
       
-      // VYŠLEME SIGNÁL DO CELÉ APLIKACE, ŽE SE ZMĚNIL PROFIL (pro Dashboard)
-      window.dispatchEvent(new Event('profile-updated'));
-
       setTimeout(() => {
         onClose();
       }, 1000);
