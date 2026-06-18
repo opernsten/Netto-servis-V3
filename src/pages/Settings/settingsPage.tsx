@@ -5,6 +5,13 @@ import packageInfo from '../../../package.json';
 import { useNetwork } from '../../hooks/useNetwork';
 
 export function SettingsPage() {
+  const [shouldThrowError, setShouldThrowError] = useState(false);
+  
+  if (shouldThrowError) {
+    throw new Error('Schválně vyvolaná zkušební chyba pro Error Boundary z Nastavení!');
+  }
+
+
   const [exportStatus, setExportStatus] = useState<string | null>(null);
   const { isOnline, ping } = useNetwork();
 
@@ -242,6 +249,29 @@ export function SettingsPage() {
                 {exportStatus}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* 3. TESTOVÁNÍ Aplikace */}
+        <div className="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden lg:col-span-2">
+          <div className="p-5 border-b border-gray-100 bg-red-50 flex items-center gap-3">
+            <AlertTriangle className="text-red-600" size={20} />
+            <h2 className="text-lg font-bold text-gray-800">Diagnostika a Testy</h2>
+          </div>
+          <div className="p-6">
+            <p className="text-sm text-gray-500 mb-4">
+              Nástroje pro ověření správného fungování interních mechanismů aplikace.
+            </p>
+            <button 
+              onClick={() => {
+                // React Error Boundary nezachytává chyby v event handlerech (onClick).
+                // Pro test musíme donutit komponentu padnout při renderování:
+                setShouldThrowError(true);
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold shadow-sm"
+            >
+              <AlertTriangle size={18} /> Otestovat záchytnou síť (Error Boundary)
+            </button>
           </div>
         </div>
 

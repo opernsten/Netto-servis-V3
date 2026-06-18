@@ -87,6 +87,7 @@ export function DashboardPage() {
           <p className="text-blue-200 text-sm font-medium uppercase tracking-wider">{today}</p>
         </div>
         <div className="flex gap-3">
+
           <Link to="/stroje/novy" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20 transition-colors flex items-center gap-2 text-sm font-bold">
             <PlusCircle size={18} /> Nový stroj
           </Link>

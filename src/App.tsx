@@ -18,6 +18,8 @@ import { ServiceHistoryPage } from './pages/Machines/ServiceHistoryPage';
 import { NewServiceLogPage } from './pages/Machines/NewServiceLogPage';
 import { SettingsPage } from './pages/Settings/settingsPage';
 
+import { GlobalErrorBoundary } from './components/feedback/GlobalErrorBoundary';
+
 export default function App() {
   const { user, isLoading } = useAuth();
 
@@ -30,29 +32,31 @@ export default function App() {
 
   // Pokud JE přihlášený, načteme Router s postranním panelem
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Všechny tyto stránky budou zabalené v našem Layoutu (s menu na boku) */}
-        <Route element={<Layout />}>
-          <Route path="/" element={<DashboardPage />} />
+    <GlobalErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          {/* Všechny tyto stránky budou zabalené v našem Layoutu (s menu na boku) */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<DashboardPage />} />
+            
+            {/* Zatím sem dáme jen zástupné texty, než si pro ně vytvoříme reálné stránky */}
+            <Route path="/zakaznici" element={<CustomersPage />} />
+            <Route path="/zakaznici/novy" element={<NewCustomerPage />} />
+            <Route path="/zakaznici/upravit/:id" element={<EditCustomerPage />} />
+            <Route path="/zakaznici/detail/:id" element={<CustomerDetailPage />} />
+            <Route path="/stroje/upravit/:id" element={<EditMachinePage />} />
+            <Route path="/stroje/detail/:id" element={<MachineDetailPage />} />
+            <Route path="/stroje" element={<MachinesPage />} />
+            <Route path="/stroje/novy" element={<NewMachinePage />} />
+            <Route path="/stroje/:id/servis" element={<ServiceHistoryPage />} />
+            <Route path="/stroje/:id/servis/novy" element={<NewServiceLogPage />} />
+            <Route path="/nastaveni" element={<SettingsPage />} />
+          </Route>
           
-          {/* Zatím sem dáme jen zástupné texty, než si pro ně vytvoříme reálné stránky */}
-          <Route path="/zakaznici" element={<CustomersPage />} />
-          <Route path="/zakaznici/novy" element={<NewCustomerPage />} />
-          <Route path="/zakaznici/upravit/:id" element={<EditCustomerPage />} />
-          <Route path="/zakaznici/detail/:id" element={<CustomerDetailPage />} />
-          <Route path="/stroje/upravit/:id" element={<EditMachinePage />} />
-          <Route path="/stroje/detail/:id" element={<MachineDetailPage />} />
-          <Route path="/stroje" element={<MachinesPage />} />
-          <Route path="/stroje/novy" element={<NewMachinePage />} />
-          <Route path="/stroje/:id/servis" element={<ServiceHistoryPage />} />
-          <Route path="/stroje/:id/servis/novy" element={<NewServiceLogPage />} />
-          <Route path="/nastaveni" element={<SettingsPage />} />
-        </Route>
-        
-        {/* Záchytná síť: Když zadáš nesmyslnou URL, hodí tě to na Dashboard */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Záchytná síť: Když zadáš nesmyslnou URL, hodí tě to na Dashboard */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </GlobalErrorBoundary>
   );
 }
