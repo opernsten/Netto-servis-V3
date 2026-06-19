@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Trash2, Users, Clock, FileText, Activity, Plus, Package, Image } from 'lucide-react';
 import { getLogsForMachine, deleteServiceLog } from '../../services/serviceLogService';
+import { PageSkeleton } from '../../components/ui/Skeleton';
 import { getMachineById } from '../../services/machineService';
 import type { ServiceLog, Machine, SparePart } from '../../types/database';
 
@@ -33,7 +34,7 @@ export function ServiceHistoryPage() {
     }
   };
 
-  if (loading) return <div className="p-8 font-medium text-gray-500">Načítám historii servisu...</div>;
+  if (loading) return <PageSkeleton />;
 
   return (
     <div className="p-8 max-w-4xl mx-auto">

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Building2, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getAllCustomers, deleteCustomer } from '../../services/customerService';
+import { TableSkeleton } from '../../components/ui/Skeleton';
 import type { Customer } from '../../types/database';
 
 export function CustomersPage() {
@@ -106,7 +107,7 @@ export function CustomersPage() {
         </div>
         
         {loading ? (
-          <div className="p-6 text-gray-500 font-medium">Načítám data...</div>
+          <TableSkeleton />
         ) : (
           <div className="flex flex-col h-full">
             <div className="divide-y divide-gray-100 flex-1">

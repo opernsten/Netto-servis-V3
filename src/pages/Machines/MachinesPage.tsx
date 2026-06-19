@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Server, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft, Filter } from 'lucide-react';
 import { getMachinesWithCustomers, deleteMachine } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
+import { TableSkeleton } from '../../components/ui/Skeleton';
 import type { MachineWithCustomer } from '../../types/database';
 
 export function MachinesPage() {
@@ -140,7 +141,7 @@ export function MachinesPage() {
         
         {/* Výpis strojů */}
         {loading ? (
-          <div className="p-6 text-gray-500 font-medium">Načítám data...</div>
+          <TableSkeleton />
         ) : (
           <div className="flex flex-col h-full">
             <div className="divide-y divide-gray-100 flex-1">

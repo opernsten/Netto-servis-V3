@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getMachinesWithCustomers } from '../../services/machineService';
 import { Server } from 'lucide-react';
 import { getStatusConfig } from '../../utils/statusConfig';
+import { TableSkeleton } from '../../components/ui/Skeleton';
 import type { MachineWithCustomer } from '../../types/database';
 
 export function MachineList() {
@@ -24,7 +25,7 @@ export function MachineList() {
   }, []);
 
   if (loading) {
-    return <div className="p-4 text-gray-500">Načítám seznam strojů...</div>;
+    return <TableSkeleton />;
   }
 
   if (machines.length === 0) {

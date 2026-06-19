@@ -4,6 +4,7 @@ import { Users, Server, AlertTriangle, Activity, ArrowRight, Wrench, PlusCircle,
 import { MidWatchdog } from '../../components/MidWatchdog';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDashboardData } from '../../features/dashboard/hooks/useDashboardData';
+import { PageSkeleton } from '../../components/ui/Skeleton';
 
 export function DashboardPage() {
   const { operatorName } = useAuth();
@@ -13,7 +14,7 @@ export function DashboardPage() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
   });
 
-  if (loading) return <div className="p-8 text-gray-500 font-medium">Načítám velín...</div>;
+  if (loading) return <PageSkeleton />;
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">

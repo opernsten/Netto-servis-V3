@@ -4,6 +4,7 @@ import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus,
 // PŘIDÁN IMPORT: updateMidLastVerification
 import { getMachineDetail, updateMidLastVerification } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
+import { PageSkeleton } from '../../components/ui/Skeleton';
 import type { MachineDetail } from '../../types/database';
 
 export function MachineDetailPage() {
@@ -37,7 +38,7 @@ export function MachineDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-gray-500 font-medium">Načítám technickou kartu...</div>;
+  if (loading) return <PageSkeleton />;
   if (!machine) return <div className="p-8 text-red-500 font-medium">Zařízení nenalezeno.</div>;
   
   const plannedVisits = machine.planned_visit_machines

@@ -5,6 +5,7 @@ import { getStatusConfig } from '../../utils/statusConfig';
 import { getGoogleMapsRouteUrl } from '../../utils/mapUtils';
 import { PlannedVisitModal } from '../../features/customers/components/PlannedVisitModal';
 import { useCustomerDetail } from '../../features/customers/hooks/useCustomerDetail';
+import { PageSkeleton } from '../../components/ui/Skeleton';
 import type { Machine } from '../../types/database';
 
 export function CustomerDetailPage() {
@@ -14,7 +15,7 @@ export function CustomerDetailPage() {
 
 
 
-  if (loading) return <div className="p-8 text-gray-500 font-medium">Načítám kartu zákazníka...</div>;
+  if (loading) return <PageSkeleton />;
   if (!customer) return <div className="p-8 text-red-500 font-medium">Zákazník nenalezen.</div>;
 
   return (
