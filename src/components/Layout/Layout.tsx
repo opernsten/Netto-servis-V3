@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Users, Server, Settings, LogOut, User as UserIcon } from 'lucide-react';
+import { Home, Users, Server, Settings, LogOut, User as UserIcon, CalendarDays } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 import { ProfileModal } from '../ProfileModal'; // <-- IMPORT NOVÉHO MODALU
 import { OfflineBanner } from '../OfflineBanner';
@@ -49,6 +49,10 @@ export function Layout() {
           <Link to="/stroje" className={linkStyle('/stroje')}>
             <Server size={20} />
             Stroje
+          </Link>
+          <Link to="/kalendar" className={linkStyle('/kalendar')}>
+            <CalendarDays size={20} />
+            Kalendář
           </Link>
         </nav>
 

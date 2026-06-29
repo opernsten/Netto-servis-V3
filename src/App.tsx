@@ -19,6 +19,7 @@ import { NewServiceLogPage } from './pages/Machines/NewServiceLogPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 
 import { GlobalErrorBoundary } from './components/feedback/GlobalErrorBoundary';
+import { CalendarPage } from './pages/Calendar/CalendarPage';
 
 export default function App() {
   const { user, isLoading } = useAuth();
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="/stroje/:id/servis" element={<ServiceHistoryPage />} />
             <Route path="/stroje/:id/servis/novy" element={<NewServiceLogPage />} />
             <Route path="/nastaveni" element={<SettingsPage />} />
+            <Route path="/kalendar" element={<CalendarPage />} />
           </Route>
           
           {/* Záchytná síť: Když zadáš nesmyslnou URL, hodí tě to na Dashboard */}
