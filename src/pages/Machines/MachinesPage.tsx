@@ -4,6 +4,7 @@ import { Server, Plus, Trash2, Edit, ChevronRight, Search, ChevronLeft, Filter }
 import { getMachinesWithCustomers, deleteMachine } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
 import { TableSkeleton } from '../../components/ui/Skeleton';
+import { MachineImage } from '../../components/MachineImage';
 import type { MachineWithCustomer } from '../../types/database';
 
 export function MachinesPage() {
@@ -149,9 +150,7 @@ export function MachinesPage() {
                 <div key={machine.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-blue-50/50 transition-colors group">
                   
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
-                      <Server size={24} />
-                    </div>
+                    <MachineImage model={machine.model} size={56} className="mt-1" />
                     <div>
                       <h3 className="font-bold text-lg text-gray-800 flex items-center gap-3">
                         {machine.model}

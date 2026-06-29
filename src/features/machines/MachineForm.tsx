@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { MACHINE_STATUSES } from '../../utils/statusConfig';
@@ -5,6 +6,10 @@ import { useMachineForm } from './hooks/useMachineForm';
 
 export function MachineForm({ machineId }: { machineId?: string }) {
   const { formData, handleChange, handleSubmit, customers, formStatus, navigate } = useMachineForm(machineId);
+  const [isCustomModel, setIsCustomModel] = useState(() => {
+    // Pokud editujeme a model není ze základní nabídky, rovnou zobrazíme custom input
+    return formData.model && !['HC-M', 'HC-A', 'EC-E', 'TQS-HC-A'].includes(formData.model);
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -43,7 +48,42 @@ export function MachineForm({ machineId }: { machineId?: string }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Model stroje *</label>
-            <Input placeholder="např. Wipotec HC-M" value={formData.model} onChange={(e) => handleChange('model', e.target.value)} required />
+            <div className="space-y-3">
+              <select 
+                className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-3.5 outline-none transition-all"
+                value={isCustomModel ? 'Jiný...' : (formData.model || '')}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'Jiný...') {
+                    setIsCustomModel(true);
+                    handleChange('model', '');
+                  } else {
+                    setIsCustomModel(false);
+                    handleChange('model', val);
+                  }
+                }}
+                required={!isCustomModel}
+              >
+                <option value="" disabled>-- Vyberte model --</option>
+                <option value="HC-M">HC-M</option>
+                <option value="HC-A">HC-A</option>
+                <option value="EC-E">EC-E</option>
+                <option value="TQS-HC-A">TQS-HC-A</option>
+                <option value="Jiný...">Jiný model...</option>
+              </select>
+
+              {isCustomModel && (
+                <div className="animate-fadeIn">
+                  <Input 
+                    placeholder="Zadejte název jiného modelu (např. ComScale 400)" 
+                    value={formData.model} 
+                    onChange={(e) => handleChange('model', e.target.value)} 
+                    required 
+                    autoFocus
+                  />
+                </div>
+              )}
+            </div>
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Sériové číslo (S/N) *</label>

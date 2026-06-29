@@ -6,6 +6,7 @@ import { getGoogleMapsRouteUrl } from '../../utils/mapUtils';
 import { PlannedVisitModal } from '../../features/customers/components/PlannedVisitModal';
 import { useCustomerDetail } from '../../features/customers/hooks/useCustomerDetail';
 import { PageSkeleton } from '../../components/ui/Skeleton';
+import { MachineImage } from '../../components/MachineImage';
 import type { Machine } from '../../types/database';
 
 export function CustomerDetailPage() {
@@ -174,10 +175,13 @@ export function CustomerDetailPage() {
         {customer.machines && customer.machines.length > 0 ? (
           <div className="divide-y divide-gray-100">
               {customer.machines.map((machine: Pick<Machine, 'id' | 'model' | 'serial_number' | 'status'>) => (
-              <Link to={`/stroje/detail/${machine.id}`} key={machine.id} className="p-5 flex items-center justify-between hover:bg-gray-50 transition-colors block">
-                <div>
-                  <div className="font-bold text-gray-800 text-lg">{machine.model}</div>
-                  <div className="text-sm text-gray-500">S/N: {machine.serial_number}</div>
+              <Link to={`/stroje/detail/${machine.id}`} key={machine.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
+                <div className="flex items-center gap-4">
+                  <MachineImage model={machine.model} size={48} />
+                  <div>
+                    <div className="font-bold text-gray-800 text-lg">{machine.model}</div>
+                    <div className="text-sm text-gray-500">S/N: {machine.serial_number}</div>
+                  </div>
                 </div>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getStatusConfig(machine.status).bg} ${getStatusConfig(machine.status).text} ${getStatusConfig(machine.status).border}`}>
                   <div className={`w-2 h-2 rounded-full mr-2 ${getStatusConfig(machine.status).dot}`}></div>

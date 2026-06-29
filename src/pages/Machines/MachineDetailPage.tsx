@@ -5,6 +5,7 @@ import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus,
 import { getMachineDetail, updateMidLastVerification } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
 import { PageSkeleton } from '../../components/ui/Skeleton';
+import { MachineImage } from '../../components/MachineImage';
 import type { MachineDetail } from '../../types/database';
 
 export function MachineDetailPage() {
@@ -71,9 +72,7 @@ export function MachineDetailPage() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="bg-[#0f2c59] p-8 text-white flex items-start justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className="p-4 bg-white/10 rounded-xl backdrop-blur-sm">
-              <Server size={40} className="text-blue-300" />
-            </div>
+            <MachineImage model={machine.model} size={80} className="shadow-lg ring-4 ring-white/10" />
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-extrabold tracking-tight">{machine.model}</h1>
