@@ -137,9 +137,34 @@ export function MachineForm({ machineId }: { machineId?: string }) {
         </div>
       </div>
 
-      {/* 3. Metrologie a Speciální konfigurace */}
+      {/* 3. Váživost a metrologické parametry (Nezobrazuje se u rentgenů) */}
+      {formData.model !== 'X-Ray' && (
+        <div>
+          <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Váživost a rozsahy</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Max</label>
+              <Input placeholder="např. 1500 g" value={formData.weightMax} onChange={(e) => handleChange('weightMax', e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Min</label>
+              <Input placeholder="např. 10 g" value={formData.weightMin} onChange={(e) => handleChange('weightMin', e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">e =</label>
+              <Input placeholder="např. 0.5 g" value={formData.weightE} onChange={(e) => handleChange('weightE', e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">d =</label>
+              <Input placeholder="např. 0.5 g" value={formData.weightD} onChange={(e) => handleChange('weightD', e.target.value)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Metrologie a Speciální konfigurace */}
       <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Metrologie a náhradní díly</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Úřední ověření a náhradní díly</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-4">
             <label className="flex items-center cursor-pointer">
@@ -178,7 +203,7 @@ export function MachineForm({ machineId }: { machineId?: string }) {
         </div>
       </div>
 
-      {/* 4. Doplňující informace */}
+      {/* 5. Doplňující informace */}
       <div>
         <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Doplňující specifikace a poznámky</h3>
         <textarea

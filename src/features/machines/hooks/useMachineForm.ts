@@ -20,7 +20,11 @@ export function useMachineForm(machineId?: string) {
     midInitialVerificationDate: '',
     hasSparePartsPackage: false,
     placementLine: '',
-    productionYear: ''
+    productionYear: '',
+    weightMax: '',
+    weightMin: '',
+    weightE: '',
+    weightD: ''
   });
 
   const [customers, setCustomers] = useState<{ id: string, name: string }[]>([]);
@@ -53,7 +57,11 @@ export function useMachineForm(machineId?: string) {
             midInitialVerificationDate: data.mid_initial_verification_date || '',
             hasSparePartsPackage: data.has_spare_parts_package || false,
             placementLine: data.placement_line || '',
-            productionYear: data.production_year ? data.production_year.toString() : ''
+            productionYear: data.production_year ? data.production_year.toString() : '',
+            weightMax: data.weight_max || '',
+            weightMin: data.weight_min || '',
+            weightE: data.weight_e || '',
+            weightD: data.weight_d || ''
           });
         }
       }
@@ -90,7 +98,11 @@ export function useMachineForm(machineId?: string) {
       mid_initial_verification_date: formData.midInitialVerificationDate || undefined,
       has_spare_parts_package: formData.hasSparePartsPackage,
       placement_line: formData.placementLine,
-      production_year: parsedYear
+      production_year: parsedYear,
+      weight_max: formData.weightMax,
+      weight_min: formData.weightMin,
+      weight_e: formData.weightE,
+      weight_d: formData.weightD
     };
 
     if (!navigator.onLine) {

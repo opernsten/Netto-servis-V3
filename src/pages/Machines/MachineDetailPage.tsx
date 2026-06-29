@@ -145,6 +145,19 @@ export function MachineDetailPage() {
                 <span className="text-gray-500">Verze SW:</span>
                 <span className="font-semibold text-gray-800">{machine.software_version || 'Nezadáno'}</span>
               </div>
+              
+              {/* Váživost */}
+              {(machine.weight_max || machine.weight_min || machine.weight_e || machine.weight_d) && (
+                <div className="pt-2">
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Váživost (Rozsahy)</div>
+                  <div className="grid grid-cols-2 gap-2 bg-gray-50 rounded-lg p-3 text-xs border border-gray-100">
+                    <div className="flex justify-between border-b border-gray-200 pb-1 border-dotted"><span className="text-gray-500">Max:</span> <span className="font-bold text-gray-800">{machine.weight_max || '-'}</span></div>
+                    <div className="flex justify-between border-b border-gray-200 pb-1 border-dotted"><span className="text-gray-500">Min:</span> <span className="font-bold text-gray-800">{machine.weight_min || '-'}</span></div>
+                    <div className="flex justify-between pt-1"><span className="text-gray-500">e =</span> <span className="font-bold text-gray-800">{machine.weight_e || '-'}</span></div>
+                    <div className="flex justify-between pt-1"><span className="text-gray-500">d =</span> <span className="font-bold text-gray-800">{machine.weight_d || '-'}</span></div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -41,6 +41,10 @@ export interface Machine {
   installation_date?: string;
   warranty_until?: string;
   software_version?: string;
+  weight_max?: string;
+  weight_min?: string;
+  weight_e?: string;
+  weight_d?: string;
   notes?: string;
   created_at?: string; // Databáze doplňuje sama
 }
