@@ -1,14 +1,24 @@
 
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Server, AlertTriangle, Activity, ArrowRight, Wrench, PlusCircle, CalendarClock } from 'lucide-react';
 import { MidWatchdog } from '../../components/MidWatchdog';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDashboardData } from '../../features/dashboard/hooks/useDashboardData';
 import { PageSkeleton } from '../../components/ui/Skeleton';
+import { OverdueVisitsModal } from '../../components/OverdueVisitsModal';
 
 export function DashboardPage() {
   const { operatorName } = useAuth();
-  const { stats, urgentMachines, upcomingVisits, allMachines, loading } = useDashboardData();
+  const { stats, urgentMachines, upcomingVisits, overdueVisits, allMachines, loading, reloadData } = useDashboardData();
+  const [showOverdueModal, setShowOverdueModal] = useState(false);
+
+  // Zobraz modal automaticky po načtení, pokud existují propadlé výjezdy
+  useEffect(() => {
+    if (!loading && overdueVisits.length > 0) {
+      setShowOverdueModal(true);
+    }
+  }, [loading, overdueVisits.length]);
 
   const today = new Date().toLocaleDateString('cs-CZ', { 
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
@@ -17,7 +27,17 @@ export function DashboardPage() {
   if (loading) return <PageSkeleton />;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <>
+      {/* MODAL PROPADLÝCH VÝJEZDŮ */}
+      {showOverdueModal && (
+        <OverdueVisitsModal
+          overdueVisits={overdueVisits}
+          onClose={() => setShowOverdueModal(false)}
+          onDeleted={() => reloadData()}
+        />
+      )}
+
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
       
       {/* UVÍTACÍ HLAVIČKA */}
       <div className="bg-gradient-to-r from-[#0f2c59] to-blue-900 rounded-2xl p-8 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -149,6 +169,7 @@ export function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

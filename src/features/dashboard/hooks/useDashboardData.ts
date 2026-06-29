@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getAllCustomers } from '../../../services/customerService';
 import { getMachinesWithCustomers } from '../../../services/machineService';
 import { supabase } from '../../../services/supabase';
@@ -14,55 +14,64 @@ export function useDashboardData() {
   
   const [urgentMachines, setUrgentMachines] = useState<MachineWithCustomer[]>([]);
   const [upcomingVisits, setUpcomingVisits] = useState<PlannedVisitWithDetails[]>([]);
+  const [overdueVisits, setOverdueVisits] = useState<PlannedVisitWithDetails[]>([]);
   const [allMachines, setAllMachines] = useState<MachineWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      setLoading(true);
+  const loadDashboardData = useCallback(async () => {
+    setLoading(true);
+    
+    const { data: customers } = await getAllCustomers();
+    const { data: machines } = await getMachinesWithCustomers();
+    
+    if (customers && machines) {
+      setAllMachines(machines);
+      const errorMachines = machines.filter(m => m.status === 'Porucha');
+      const maintMachines = machines.filter(m => m.status === 'Nutná údržba');
       
-      const { data: customers } = await getAllCustomers();
-      const { data: machines } = await getMachinesWithCustomers();
-      
-      if (customers && machines) {
-        setAllMachines(machines);
-        const errorMachines = machines.filter(m => m.status === 'Porucha');
-        const maintMachines = machines.filter(m => m.status === 'Nutná údržba');
-        
-        setStats({
-          customers: customers.length,
-          machines: machines.length,
-          errors: errorMachines.length,
-          maintenance: maintMachines.length
-        });
-        setUrgentMachines([...errorMachines, ...maintMachines].slice(0, 5));
-      }
+      setStats({
+        customers: customers.length,
+        machines: machines.length,
+        errors: errorMachines.length,
+        maintenance: maintMachines.length
+      });
+      setUrgentMachines([...errorMachines, ...maintMachines].slice(0, 5));
+    }
 
-      const { data: visits, error: visitsError } = await supabase
-        .from('planned_visits')
-        .select(`
-          id,
-          visit_date,
-          note,
-          customer_id,
-          customers ( name ),
-          planned_visit_machines ( machine_id )
-        `)
-        .order('visit_date', { ascending: true })
-        .limit(3);
+    const { data: visits, error: visitsError } = await supabase
+      .from('planned_visits')
+      .select(`
+        id,
+        visit_date,
+        note,
+        customer_id,
+        customers ( name ),
+        planned_visit_machines ( machine_id )
+      `)
+      .order('visit_date', { ascending: true });
 
-      if (visitsError) {
-        console.error("Chyba výjezdů na Dashboardu:", visitsError);
-      }
-      if (visits) {
-        setUpcomingVisits(visits as unknown as PlannedVisitWithDetails[]);
-      }
+    if (visitsError) {
+      console.error("Chyba výjezdů na Dashboardu:", visitsError);
+    }
+
+    if (visits) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
       
-      setLoading(false);
+      const allVisits = visits as unknown as PlannedVisitWithDetails[];
+      const overdue = allVisits.filter(v => new Date(v.visit_date) < todayStart);
+      const upcoming = allVisits.filter(v => new Date(v.visit_date) >= todayStart).slice(0, 3);
+
+      setOverdueVisits(overdue);
+      setUpcomingVisits(upcoming);
     }
     
-    loadDashboardData();
+    setLoading(false);
   }, []);
 
-  return { stats, urgentMachines, upcomingVisits, allMachines, loading };
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  return { stats, urgentMachines, upcomingVisits, overdueVisits, allMachines, loading, reloadData: loadDashboardData };
 }

@@ -56,3 +56,13 @@ export async function deletePlannedVisit(visitId: string) {
 
   return { error };
 }
+
+// 4. Přeložení výjezdu na nové datum
+export async function updatePlannedVisitDate(visitId: string, newDate: string) {
+  const { error } = await supabase
+    .from('planned_visits')
+    .update({ visit_date: newDate })
+    .eq('id', visitId);
+
+  return { error };
+}
