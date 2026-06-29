@@ -8,7 +8,7 @@ export function MachineForm({ machineId }: { machineId?: string }) {
   const { formData, handleChange, handleSubmit, customers, formStatus, navigate } = useMachineForm(machineId);
   const [isCustomModel, setIsCustomModel] = useState(() => {
     // Pokud editujeme a model není ze základní nabídky, rovnou zobrazíme custom input
-    return formData.model && !['HC-M', 'HC-A', 'EC-E', 'TQS-HC-A'].includes(formData.model);
+    return formData.model && !['HC-M', 'HC-A', 'EC-E', 'TQS-HC-A', 'X-Ray'].includes(formData.model);
   });
 
   return (
@@ -69,6 +69,7 @@ export function MachineForm({ machineId }: { machineId?: string }) {
                 <option value="HC-A">HC-A</option>
                 <option value="EC-E">EC-E</option>
                 <option value="TQS-HC-A">TQS-HC-A</option>
+                <option value="X-Ray">X-Ray</option>
                 <option value="Jiný...">Jiný model...</option>
               </select>
 
@@ -87,15 +88,26 @@ export function MachineForm({ machineId }: { machineId?: string }) {
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Sériové číslo (S/N) *</label>
-            <Input placeholder="Zadejte S/N ze štítku" value={formData.serialNumber} onChange={(e) => handleChange('serialNumber', e.target.value)} required />
+            <Input 
+              placeholder="Zadejte S/N ze štítku (max 7 číslic)" 
+              value={formData.serialNumber} 
+              onChange={(e) => {
+                const val = e.target.value;
+                // Povolí pouze prázdný řetězec nebo jen čísla o maximální délce 7 znaků
+                if (val === '' || (/^\d+$/.test(val) && val.length <= 7)) {
+                  handleChange('serialNumber', val);
+                }
+              }} 
+              required 
+            />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dodavatel zařízení</label>
-            <Input placeholder="např. Netto Electronics" value={formData.supplier} onChange={(e) => handleChange('supplier', e.target.value)} />
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dodavatel zařízení *</label>
+            <Input placeholder="např. Netto Electronics" value={formData.supplier} onChange={(e) => handleChange('supplier', e.target.value)} required />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rok výroby</label>
-            <Input type="number" placeholder="RRRR" value={formData.productionYear} onChange={(e) => handleChange('productionYear', e.target.value)} min="1990" max="2050" />
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rok výroby *</label>
+            <Input type="number" placeholder="RRRR" value={formData.productionYear} onChange={(e) => handleChange('productionYear', e.target.value)} min="1990" max="2050" required />
           </div>
         </div>
       </div>

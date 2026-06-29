@@ -81,6 +81,7 @@ export function MidWatchdog({ machines }: MidWatchdogProps) {
               {/* Tlačítko se obarví podle závažnosti */}
               <Link 
                 to={`/stroje/detail/${alert.machine.id}`}
+                state={{ highlightMID: true }}
                 className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors text-center shrink-0 ${isCritical ? 'bg-red-600 hover:bg-red-700 text-white shadow-md' : 'text-[#0f2c59] bg-blue-50 hover:bg-blue-100'}`}
               >
                 Vyřešit na kartě stroje

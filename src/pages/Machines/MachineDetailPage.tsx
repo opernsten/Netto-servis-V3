@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus, Edit, CalendarClock, AlertTriangle, Truck} from 'lucide-react';
 // PŘIDÁN IMPORT: updateMidLastVerification
 import { getMachineDetail, updateMidLastVerification } from '../../services/machineService';
@@ -10,8 +10,15 @@ import type { MachineDetail } from '../../types/database';
 
 export function MachineDetailPage() {
   const { id } = useParams();
+  const location = useLocation();
+  const highlightMID = location.state?.highlightMID || false;
+  
   const [machine, setMachine] = useState<MachineDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Stavy pro formulář nové MID zkoušky
+  const [showRenewForm, setShowRenewForm] = useState(false);
+  const [renewDate, setRenewDate] = useState(new Date().toISOString().split('T')[0]);
 
   async function loadData() {
     if (id) {
@@ -26,16 +33,21 @@ export function MachineDetailPage() {
     loadData();
   }, [id]);
 
-  // NOVÁ FUNKCE: Potvrzení zkoušky a prodloužení o 1 rok
+  // NOVÁ FUNKCE: Potvrzení zkoušky s vybraným datem
   const handleRenewMid = async () => {
-    if (window.confirm('Potvrzujete, že dnes proběhla nová úspěšná MID zkouška? Datum platnosti se automaticky posune o 1 rok dopředu.')) {
-      if (!machine) return;
-      const { error } = await updateMidLastVerification(machine.id);
-      if (error) {
-        alert('Chyba při ukládání: ' + error.message);
-      } else {
-        loadData(); // Okamžitě načte nová data ze serveru (vynuluje psa)
-      }
+    if (!renewDate) {
+      alert('Zadejte prosím datum zkoušky.');
+      return;
+    }
+    
+    if (!machine) return;
+    
+    const { error } = await updateMidLastVerification(machine.id, renewDate);
+    if (error) {
+      alert('Chyba při ukládání: ' + error.message);
+    } else {
+      setShowRenewForm(false);
+      loadData(); // Okamžitě načte nová data ze serveru (vynuluje psa)
     }
   };
 
@@ -143,10 +155,16 @@ export function MachineDetailPage() {
             <div className="space-y-4">
               
               {/* UPRAVENÝ BOX PRO MID */}
-              <div className={`p-3 rounded-lg border flex items-start gap-3 ${machine.is_mid ? 'bg-blue-50 border-blue-100 text-blue-800' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
-                <ShieldCheck size={20} className={machine.is_mid ? 'text-blue-600 shrink-0' : 'text-gray-400 shrink-0'} />
+              <div className={`p-3 rounded-lg border flex items-start gap-3 transition-all duration-500 ${
+                highlightMID 
+                  ? 'animate-flash-red border-red-500 text-red-800' 
+                  : machine.is_mid 
+                    ? 'bg-blue-50 border-blue-100 text-blue-800' 
+                    : 'bg-gray-50 border-gray-200 text-gray-500'
+              }`}>
+                <ShieldCheck size={20} className={highlightMID ? 'text-red-600 shrink-0' : machine.is_mid ? 'text-blue-600 shrink-0' : 'text-gray-400 shrink-0'} />
                 <div className="w-full">
-                  <div className="font-bold text-sm">{machine.is_mid ? 'MID Zařízení' : 'Bez úředního ověření'}</div>
+                  <div className={`font-bold text-sm ${highlightMID ? 'text-red-700' : ''}`}>{machine.is_mid ? 'MID Zařízení' : 'Bez úředního ověření'}</div>
                   
                   {machine.is_mid && (
                     <div className="space-y-1.5 mt-2">
@@ -160,12 +178,39 @@ export function MachineDetailPage() {
                         </div>
                       )}
 
-                      <button 
-                        onClick={handleRenewMid}
-                        className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
-                      >
-                        <ShieldCheck size={14} /> Potvrdit novou zkoušku (Dnes)
-                      </button>
+                      {showRenewForm ? (
+                        <div className="mt-3 p-3 bg-white border border-blue-200 rounded-lg shadow-sm space-y-2 animate-fadeIn">
+                          <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Datum provedení zkoušky</label>
+                          <input 
+                            type="date"
+                            value={renewDate}
+                            onChange={(e) => setRenewDate(e.target.value)}
+                            max={new Date().toISOString().split('T')[0]}
+                            className="w-full text-sm p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-gray-800"
+                          />
+                          <div className="flex gap-2 pt-1">
+                            <button 
+                              onClick={handleRenewMid}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded-md text-xs font-bold transition-all shadow-sm"
+                            >
+                              Uložit
+                            </button>
+                            <button 
+                              onClick={() => setShowRenewForm(false)}
+                              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 rounded-md text-xs font-bold transition-all"
+                            >
+                              Zrušit
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => setShowRenewForm(true)}
+                          className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <ShieldCheck size={14} /> Zadat novou zkoušku
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

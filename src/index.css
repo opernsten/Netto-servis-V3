@@ -10,3 +10,12 @@
 .animate-slide-in-up {
   animation: slide-in-up 0.4s ease-out forwards;
 }
+
+@keyframes flash-red {
+  0%, 100% { border-color: #fca5a5; background-color: #fef2f2; box-shadow: 0 0 0px rgba(239, 68, 68, 0); }
+  50% { border-color: #ef4444; background-color: #fee2e2; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+}
+
+.animate-flash-red {
+  animation: flash-red 1.5s ease-in-out infinite;
+}

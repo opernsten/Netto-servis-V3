@@ -94,13 +94,11 @@ export async function getMachineDetail(id: string) {
   return { data: data as MachineDetail | null, error };
 }
 
-// Zapsání nové roční MID zkoušky (aktualizuje datum na dnešek)
-export async function updateMidLastVerification(machineId: string) {
-  const today = new Date().toISOString().split('T')[0];
-  
+// Zapsání nové roční MID zkoušky k libovolnému datu
+export async function updateMidLastVerification(machineId: string, date: string) {
   const { data, error } = await supabase
     .from('machines')
-    .update({ mid_last_verification_date: today })
+    .update({ mid_last_verification_date: date })
     .eq('id', machineId)
     .select();
 
