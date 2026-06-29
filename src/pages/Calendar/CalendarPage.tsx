@@ -258,7 +258,7 @@ export function CalendarPage() {
             {/* Nový výjezd */}
             <button
               onClick={() => setNewVisitDate(today)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#0f2c59] hover:bg-blue-900 text-white font-bold rounded-xl text-sm transition-colors shadow-sm"
+              className="tour-step-calendar-add flex items-center gap-2 px-4 py-2 bg-[#0f2c59] hover:bg-blue-900 text-white font-bold rounded-xl text-sm transition-colors shadow-sm"
             >
               <Plus size={16} /> Nový výjezd
             </button>
@@ -268,7 +268,7 @@ export function CalendarPage() {
 
       {/* === Kalendářní grid === */}
       <div className="flex-1 overflow-auto p-4 pb-2">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="tour-step-calendar-view bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           {/* Hlavičky dnů */}
           <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
             {DAY_NAMES_SHORT.map((name, i) => (

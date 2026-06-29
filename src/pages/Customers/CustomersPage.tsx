@@ -92,7 +92,7 @@ export function CustomersPage() {
         <div className="p-6 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-xl font-bold text-gray-800">Seznam firem v databázi</h2>
           
-          <div className="relative w-full sm:w-72">
+          <div className="relative w-full sm:w-72 tour-step-customer-search">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={18} className="text-gray-400" />
             </div>
@@ -109,7 +109,7 @@ export function CustomersPage() {
         {loading ? (
           <TableSkeleton />
         ) : (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full tour-step-customer-table">
             <div className="divide-y divide-gray-100 flex-1">
               {/* TADY JE ZMĚNA: Vykreslujeme už jen 'currentCustomers' (max 10 položek) */}
               {currentCustomers.map((customer) => (

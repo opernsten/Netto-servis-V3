@@ -144,7 +144,7 @@ export function MachinesPage() {
         {loading ? (
           <TableSkeleton />
         ) : (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full tour-step-machine-table">
             <div className="divide-y divide-gray-100 flex-1">
               {currentMachines.map((machine) => (
                 <div key={machine.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-blue-50/50 transition-colors group">

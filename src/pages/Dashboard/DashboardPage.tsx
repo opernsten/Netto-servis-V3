@@ -47,7 +47,7 @@ export function DashboardPage() {
           </h1>
           <p className="text-blue-200 text-sm font-medium uppercase tracking-wider">{today}</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 tour-step-add-buttons">
 
           <Link to="/stroje/novy" className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20 transition-colors flex items-center gap-2 text-sm font-bold">
             <PlusCircle size={18} /> Nový stroj
@@ -59,7 +59,7 @@ export function DashboardPage() {
       </div>
 
       {/* KARTY STATISTIK */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 tour-step-stats">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center gap-4">
           <div className="p-4 bg-blue-50 text-blue-600 rounded-xl"><Users size={24} /></div>
           <div>
@@ -98,7 +98,7 @@ export function DashboardPage() {
           
           <MidWatchdog machines={allMachines} />
           
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="tour-step-upcoming bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 bg-orange-50/30 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <CalendarClock className="text-orange-500" size={20} /> Nejbližší plánované výjezdy
@@ -131,7 +131,7 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="tour-step-urgent bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Activity className="text-red-500" size={20} /> Stroje vyžadující pozornost (Poruchy)</h2>
               <Link to="/stroje" className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1">Všechny stroje <ArrowRight size={16} /></Link>
@@ -157,7 +157,7 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-[#0f2c59] rounded-xl shadow-sm border border-blue-900 p-6 text-white h-fit sticky top-6">
+        <div className="tour-step-quickactions bg-[#0f2c59] rounded-xl shadow-sm border border-blue-900 p-6 text-white h-fit sticky top-6">
           <h3 className="text-lg font-bold mb-4 flex items-center gap-2 border-b border-blue-800 pb-2"><Activity size={20} className="text-blue-400" /> Rychlé akce</h3>
           <div className="space-y-3">
             <Link to="/zakaznici" className="block w-full p-4 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors">

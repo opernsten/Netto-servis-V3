@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, Server, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus, Edit, CalendarClock, AlertTriangle, Truck} from 'lucide-react';
+import { ArrowLeft, Building2, ShieldCheck, Wrench, Cpu, Calendar, Plus, Edit, CalendarClock, AlertTriangle, Truck} from 'lucide-react';
 // PŘIDÁN IMPORT: updateMidLastVerification
 import { getMachineDetail, updateMidLastVerification } from '../../services/machineService';
 import { getStatusConfig } from '../../utils/statusConfig';
@@ -81,7 +81,7 @@ export function MachineDetailPage() {
       </div>
 
       {/* HLAVNÍ HLAVIČKA */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="tour-step-machine-info bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="bg-[#0f2c59] p-8 text-white flex items-start justify-between gap-6">
           <div className="flex items-center gap-5">
             <MachineImage model={machine.model} size={80} className="shadow-lg ring-4 ring-white/10" />
@@ -168,7 +168,7 @@ export function MachineDetailPage() {
             <div className="space-y-4">
               
               {/* UPRAVENÝ BOX PRO MID */}
-              <div className={`p-3 rounded-lg border flex items-start gap-3 transition-all duration-500 ${
+              <div className={`tour-step-machine-mid p-3 rounded-lg border flex items-start gap-3 transition-all duration-500 ${
                 highlightMID 
                   ? 'animate-flash-red border-red-500 text-red-800' 
                   : machine.is_mid 
@@ -293,7 +293,7 @@ export function MachineDetailPage() {
       <div className="flex flex-col sm:flex-row gap-6">
         <Link 
           to={`/stroje/${id}/servis`} 
-          className="flex-1 bg-white border-2 border-[#0f2c59] text-[#0f2c59] rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:bg-gray-50 transition-colors group"
+          className="tour-step-machine-history flex-1 bg-white border-2 border-[#0f2c59] text-[#0f2c59] rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:bg-gray-50 transition-colors group"
         >
           <Calendar size={40} className="group-hover:scale-110 transition-transform" />
           <span className="font-bold text-xl">Detail servisu (Historie)</span>

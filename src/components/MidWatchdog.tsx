@@ -27,7 +27,7 @@ export function MidWatchdog({ machines }: MidWatchdogProps) {
   const hasCritical = alerts.some(a => a.colorStatus === 'red');
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm border overflow-hidden mb-8 ${hasCritical ? 'border-red-400' : 'border-gray-200'}`}>
+    <div className={`tour-step-mid bg-white rounded-xl shadow-sm border overflow-hidden mb-8 ${hasCritical ? 'border-red-400' : 'border-gray-200'}`}>
       
       {/* HLAVIČKA MODULU (Zčervená, pokud něco hoří) */}
       <div className={`p-6 border-b flex items-center justify-between ${hasCritical ? 'bg-red-600 text-white' : 'bg-red-50/30 border-gray-100'}`}>

@@ -36,7 +36,7 @@ export function CustomerDetailPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+      <div className="tour-step-customer-info bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
         <div className="bg-[#0f2c59] p-8 text-white flex items-start gap-6">
           <div className="p-4 bg-white/10 rounded-xl backdrop-blur-sm">
             <Building2 size={40} className="text-blue-300" />
@@ -171,7 +171,7 @@ export function CustomerDetailPage() {
         Evidované stroje
       </h2>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="tour-step-customer-machines bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {customer.machines && customer.machines.length > 0 ? (
           <div className="divide-y divide-gray-100">
               {customer.machines.map((machine: Pick<Machine, 'id' | 'model' | 'serial_number' | 'status'>) => (
